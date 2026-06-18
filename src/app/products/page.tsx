@@ -32,6 +32,9 @@ export default async function ProductsPage({
             style={{ fontSize: "clamp(3rem, 8vw, 7rem)" }}>
             SHOP
           </h1>
+          <p className="font-heading text-[11px] tracking-[0.3em] text-brand-gray-light mt-4">
+            {active === "ALL" ? "ALL ITEMS" : active} — {products.length} ITEMS
+          </p>
         </div>
       </div>
 

@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "baseec-images.akamaized.net" },
       { protocol: "https", hostname: "images.thebase.in" },
     ],
+    // /public/sample のデモ用SVGを next/image で扱うための設定。
+    // 配信は自前の静的ファイルのみ。スクリプト実行を防ぐため CSP / attachment を付与。
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 

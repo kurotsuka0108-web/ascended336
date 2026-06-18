@@ -1,4 +1,8 @@
+"use client";
+
+import { motion } from "framer-motion";
 import ProductCard from "./ProductCard";
+import { fadeInUp, staggerContainer } from "@/lib/animations";
 import type { Product } from "@/types/product";
 
 interface ProductGridProps {
@@ -20,10 +24,18 @@ export default function ProductGrid({ products }: ProductGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+    <motion.div
+      className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"
+      variants={staggerContainer}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-80px" }}
+    >
       {products.map((product) => (
-        <ProductCard key={product.id} {...product} />
+        <motion.div key={product.id} variants={fadeInUp}>
+          <ProductCard {...product} />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

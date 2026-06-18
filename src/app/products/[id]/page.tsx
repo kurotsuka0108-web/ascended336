@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/base";
+import ProductGallery from "@/components/product/ProductGallery";
 
 type Params = { id: string };
 
@@ -41,8 +41,6 @@ export default async function ProductDetailPage({
     notFound();
   }
 
-  const mainImage = product.images[0];
-
   return (
     <div className="min-h-screen bg-brand-black">
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-12">
@@ -64,25 +62,12 @@ export default async function ProductDetailPage({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
 
-          {/* Image area */}
-          <div className="aspect-[3/4] relative overflow-hidden border border-brand-gray-mid" style={{ backgroundColor: "#2a2a2a" }}>
-            {mainImage ? (
-              <Image
-                src={mainImage}
-                alt={product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-heading text-xs tracking-[0.3em] text-brand-gray-light">
-                  {product.category}
-                </span>
-              </div>
-            )}
-          </div>
+          {/* Image gallery */}
+          <ProductGallery
+            images={product.images}
+            name={product.name}
+            category={product.category}
+          />
 
           {/* Info area */}
           <div className="flex flex-col gap-6">

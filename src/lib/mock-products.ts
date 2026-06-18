@@ -65,6 +65,16 @@ const SEEDS: MockSeed[] = [
   { name: "LEATHER GLOVES", price: 11000, category: "ACCESSORIES", description: "ショート丈のレザーグローブ。指先まで宿る品格。", accessory: true },
 ];
 
+/**
+ * デモ用サンプル画像（/public/sample）。
+ * 画像未登録時の挙動と、ギャラリーの複数画像切替を確認するための仮データ。
+ * BASE 連携・実画像登録後は不要（i===0,1 の割り当てを外すだけでよい）。
+ */
+const DEMO_IMAGES: Record<number, string[]> = {
+  0: ["/sample/look-front.svg", "/sample/look-back.svg", "/sample/look-detail.svg"],
+  1: ["/sample/look-front.svg", "/sample/look-detail.svg"],
+};
+
 export const MOCK_PRODUCTS: Product[] = SEEDS.map((seed, i) => {
   const variations = seed.accessory ? FREE_SIZE : APPAREL_SIZES;
   const inStock = !seed.soldOut;
@@ -73,7 +83,7 @@ export const MOCK_PRODUCTS: Product[] = SEEDS.map((seed, i) => {
     name: seed.name,
     description: seed.description,
     price: seed.price,
-    images: [],
+    images: DEMO_IMAGES[i] ?? [],
     category: seed.category,
     inStock,
     variations: inStock

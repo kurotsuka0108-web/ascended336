@@ -23,7 +23,7 @@ const navLinks = [
 /* ── Cart icon ── */
 function CartIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
       strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
       <line x1="3" y1="6" x2="21" y2="6" />
@@ -60,7 +60,7 @@ export default function Header() {
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
       >
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 h-20 md:h-28 flex items-center justify-between">
 
           {/* Logo */}
           <Link
@@ -72,15 +72,15 @@ export default function Header() {
             <Image
               src="/logo-mark.png"
               alt="AscenDed336"
-              width={120}
-              height={120}
-              className="h-14 w-auto object-contain"
+              width={160}
+              height={160}
+              className="h-16 md:h-24 w-auto object-contain"
               priority
             />
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-10" aria-label="メインナビゲーション">
+          <nav className="hidden md:flex items-center gap-12" aria-label="メインナビゲーション">
             {navLinks.map((link) => (
               <div
                 key={link.href}
@@ -90,7 +90,7 @@ export default function Header() {
               >
                 <Link
                   href={link.href}
-                  className="font-heading text-sm tracking-[0.2em] text-brand-gray-light
+                  className="font-heading text-base lg:text-lg tracking-[0.2em] text-brand-gray-light
                              hover:text-brand-white transition-colors duration-200 relative group
                              focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-red"
                 >
@@ -104,7 +104,7 @@ export default function Header() {
                   {link.children && openDropdown === link.label && (
                     <motion.div
                       className="absolute top-full left-0 mt-3 bg-brand-black border border-brand-gray
-                                 min-w-[160px] py-2"
+                                 min-w-[180px] py-2"
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
@@ -114,7 +114,7 @@ export default function Header() {
                         <Link
                           key={child.href}
                           href={child.href}
-                          className="block px-5 py-2.5 font-heading text-xs tracking-[0.25em]
+                          className="block px-5 py-3 font-heading text-sm tracking-[0.25em]
                                      text-brand-gray-light hover:text-brand-white hover:bg-brand-gray
                                      transition-colors duration-150
                                      focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-red"

@@ -64,6 +64,32 @@ h1, h2, h3, h4, h5, h6 {
   background: #cc0000;
 }
 
+/* Film grain overlay */
+.grain-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* Placeholder surface — 画像未登録時の質感（グラデ＋微細な斜線テクスチャ） */
+.placeholder-surface {
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 38%, #303030 0%, #1d1d1d 62%, #121212 100%);
+}
+.placeholder-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(245, 245, 240, 0.018) 0,
+    rgba(245, 245, 240, 0.018) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+  pointer-events: none;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -3,6 +3,8 @@ import { Bebas_Neue, Inter, Noto_Sans_JP } from "next/font/google";
 import localFont from "next/font/local";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { MotionProvider } from "@/components/layout/MotionProvider";
+import GrainOverlay from "@/components/layout/GrainOverlay";
 import "./globals.css";
 
 const dracutaz = localFont({
@@ -31,6 +33,7 @@ const notoSansJP = Noto_Sans_JP({
   display: "swap",
 });
 
+
 export const metadata: Metadata = {
   title: {
     default: "ASCENDED336",
@@ -56,11 +59,14 @@ export default function RootLayout({
       className={`${dracutaz.variable} ${bebasNeue.variable} ${inter.variable} ${notoSansJP.variable}`}
     >
       <body className="bg-brand-black text-brand-white font-body antialiased min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 pt-16">
-          {children}
-        </main>
-        <Footer />
+        <MotionProvider>
+          <Header />
+          <main className="flex-1 pt-20 md:pt-28">
+            {children}
+          </main>
+          <Footer />
+        </MotionProvider>
+        <GrainOverlay />
       </body>
     </html>
   );

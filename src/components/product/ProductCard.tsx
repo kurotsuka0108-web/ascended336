@@ -26,9 +26,8 @@ export default function ProductCard({
     >
       {/* Image area */}
       <div
-        className="aspect-[3/4] overflow-hidden relative
+        className="placeholder-surface aspect-[3/4] overflow-hidden relative
                    group-hover:opacity-90 transition-opacity duration-300"
-        style={{ backgroundColor: "#2a2a2a" }}
       >
         {mainImage ? (
           <Image
@@ -36,11 +35,14 @@ export default function ProductCard({
             alt={name}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
-            className="object-cover"
+            className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
           />
         ) : (
           /* 画像未登録時のプレースホルダー（BASE登録後に自動で画像表示） */
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+            <span className="font-display text-2xl tracking-[0.1em] text-brand-white/15 select-none">
+              A336
+            </span>
             <span className="font-heading text-[10px] tracking-[0.3em] text-brand-gray-light">
               {category}
             </span>
