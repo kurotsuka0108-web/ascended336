@@ -17,17 +17,24 @@ export default function CategoryBanner() {
     <section className="border-y border-brand-gray" aria-label="カテゴリー一覧">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <motion.div
-          className="grid grid-cols-2 md:grid-cols-5 divide-x divide-brand-gray"
+          className="grid grid-cols-2 md:grid-cols-5 gap-px bg-brand-gray"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
         >
-          {CATEGORIES.map((cat) => (
-            <motion.div key={cat.href} variants={fadeInUp}>
+          {CATEGORIES.map((cat, i) => {
+            const isLastOdd =
+              i === CATEGORIES.length - 1 && CATEGORIES.length % 2 === 1;
+            return (
+            <motion.div
+              key={cat.href}
+              variants={fadeInUp}
+              className={`bg-brand-black ${isLastOdd ? "col-span-2 md:col-span-1" : ""}`}
+            >
               <Link
                 href={cat.href}
-                className="group flex flex-col items-center justify-center py-10 gap-3
+                className="group flex flex-col items-center justify-center w-full h-full py-10 gap-3
                            hover:bg-brand-gray transition-colors duration-200
                            focus-visible:outline-none focus-visible:ring-inset focus-visible:ring-1 focus-visible:ring-brand-red"
               >
@@ -46,7 +53,8 @@ export default function CategoryBanner() {
                 </span>
               </Link>
             </motion.div>
-          ))}
+            );
+          })}
         </motion.div>
       </div>
     </section>

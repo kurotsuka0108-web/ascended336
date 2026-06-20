@@ -1,6 +1,7 @@
 import Hero from "@/components/sections/Hero";
 import CategoryBanner from "@/components/sections/CategoryBanner";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
+import Marquee from "@/components/sections/Marquee";
 import HorizontalGallery, { type GalleryItem } from "@/components/sections/HorizontalGallery";
 import { getProducts } from "@/lib/base";
 
@@ -21,7 +22,7 @@ export default async function Home() {
       <Hero />
       <CategoryBanner />
       <FeaturedProducts title="NEW ARRIVALS" products={newArrivals} />
-      <div className="h-px bg-brand-gray mx-6 md:mx-12" />
+      <Marquee />
       <FeaturedProducts title="BEST SELLERS" products={bestSellers} />
 
       {/* LOOKBOOK 誘導（水平スクロール） */}

@@ -22,12 +22,29 @@ export default function Hero() {
         className="absolute inset-0"
         style={{ y: bgY, scale: 1.08, originY: 0, willChange: "transform", zIndex: 0 }}
       >
+        {/* スマホ（縦長）。display:none の他サイズ画像は読み込まれない */}
         <Image
-          src="/wall-bg.png"
+          src="/hero-bg-mobile.png"
           alt=""
           fill
           priority
-          className="object-cover object-center"
+          className="object-cover object-center md:hidden"
+          sizes="100vw"
+        />
+        {/* タブレット */}
+        <Image
+          src="/hero-bg-tablet.png"
+          alt=""
+          fill
+          className="object-cover object-center hidden md:block lg:hidden"
+          sizes="100vw"
+        />
+        {/* PC（横長） */}
+        <Image
+          src="/hero-bg.png"
+          alt=""
+          fill
+          className="object-cover object-center hidden lg:block"
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-black/50" />
@@ -79,28 +96,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ── Scroll indicator ── */}
-      <motion.div
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
-        style={{ zIndex: 4 }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.8 }}
-        aria-hidden
-      >
-        <motion.div
-          className="w-px h-12"
-          style={{ background: "linear-gradient(to bottom, #cc0000, transparent)" }}
-          animate={{ scaleY: [0, 1, 0] }}
-          transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-        />
-        <span
-          className="font-heading text-[9px] tracking-[0.5em] text-brand-cream/30"
-          style={{ writingMode: "vertical-rl" }}
-        >
-          SCROLL
-        </span>
-      </motion.div>
     </section>
   );
 }
