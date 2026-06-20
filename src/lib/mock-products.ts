@@ -16,12 +16,17 @@ const APPAREL_SIZES: ProductVariation[] = [
 
 const FREE_SIZE: ProductVariation[] = [{ id: "free", label: "FREE", stock: 8 }];
 
+/** 古着など一点物（在庫1のワンサイズ） */
+const ONE_OF_A_KIND: ProductVariation[] = [{ id: "one", label: "ONE", stock: 1 }];
+
 type MockSeed = {
   name: string;
   price: number;
   category: ProductCategory;
   description: string;
   accessory?: boolean;
+  /** 一点物（古着など）。ONEサイズ・在庫1で表示 */
+  oneOfAKind?: boolean;
   soldOut?: boolean;
 };
 
@@ -63,6 +68,13 @@ const SEEDS: MockSeed[] = [
   { name: "SKULL SIGNET RING", price: 9900, category: "ACCESSORIES", description: "スカルのシグネットリング。重厚なシルバー。", accessory: true, soldOut: true },
   { name: "STUDDED BEANIE", price: 7700, category: "ACCESSORIES", description: "スタッズビーニー。やわらかなニットに鋭い金属。", accessory: true },
   { name: "LEATHER GLOVES", price: 11000, category: "ACCESSORIES", description: "ショート丈のレザーグローブ。指先まで宿る品格。", accessory: true },
+
+  // ── VINTAGE（古着・一点物） ──
+  { name: "70S VINTAGE TARTAN BLAZER", price: 34000, category: "VINTAGE", description: "70年代英国のタータンブレザー。時を経た生地の風合いと一点物の佇まい。", oneOfAKind: true },
+  { name: "ARCHIVE BAND TEE (VINTAGE)", price: 18700, category: "VINTAGE", description: "色褪せたアーカイブのバンドT。当時のプリントとダメージをそのままに。", oneOfAKind: true },
+  { name: "WORN LEATHER RIDERS (USED)", price: 52000, category: "VINTAGE", description: "使い込まれたライダース。深いシワとアタリが語る確かな経年。", oneOfAKind: true },
+  { name: "VINTAGE MOHAIR CARDIGAN", price: 26400, category: "VINTAGE", description: "起毛の効いたヴィンテージモヘアカーディガン。希少な色味の一着。", oneOfAKind: true },
+  { name: "FADED PUNK DENIM (USED)", price: 23100, category: "VINTAGE", description: "理想的に色落ちした古着デニム。安全ピンの補修跡まで愛おしい。", oneOfAKind: true, soldOut: true },
 ];
 
 /**
@@ -76,7 +88,11 @@ const DEMO_IMAGES: Record<number, string[]> = {
 };
 
 export const MOCK_PRODUCTS: Product[] = SEEDS.map((seed, i) => {
-  const variations = seed.accessory ? FREE_SIZE : APPAREL_SIZES;
+  const variations = seed.oneOfAKind
+    ? ONE_OF_A_KIND
+    : seed.accessory
+      ? FREE_SIZE
+      : APPAREL_SIZES;
   const inStock = !seed.soldOut;
   return {
     id: String(1000 + i),

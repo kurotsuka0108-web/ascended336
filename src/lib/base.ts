@@ -27,6 +27,7 @@ const hasCredentials = Boolean(CLIENT_ID && CLIENT_SECRET && REFRESH_TOKEN);
 // 本番では BASE のカテゴリーAPI（/1/categories）連携に差し替え可能。
 function inferCategory(title: string): ProductCategory {
   const t = title.toLowerCase();
+  if (/(vintage|used|secondhand|archive|古着)/.test(t)) return "VINTAGE";
   if (/(coat|jacket|blazer|parka|trench|outer|riders)/.test(t)) return "OUTERWEAR";
   if (/(pants|trousers|denim|skirt|kilt|cargo|bottom)/.test(t)) return "BOTTOMS";
   if (/(belt|choker|earring|ring|pin|scarf|wallet|beanie|glove|necklace|bag|cap|hat)/.test(t))

@@ -8,6 +8,7 @@ const CATEGORIES = [
   { label: "TOPS",        href: "/products?category=tops" },
   { label: "BOTTOMS",     href: "/products?category=bottoms" },
   { label: "OUTERWEAR",   href: "/products?category=outerwear" },
+  { label: "VINTAGE",     href: "/products?category=vintage" },
   { label: "ACCESSORIES", href: "/products?category=accessories" },
 ];
 
@@ -16,7 +17,7 @@ export default function CategoryBanner() {
     <section className="border-y border-brand-gray" aria-label="カテゴリー一覧">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 divide-x divide-brand-gray"
+          className="grid grid-cols-2 md:grid-cols-5 divide-x divide-brand-gray"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"

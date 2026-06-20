@@ -8,6 +8,7 @@ export type ProductCategory =
   | "TOPS"
   | "BOTTOMS"
   | "OUTERWEAR"
+  | "VINTAGE"
   | "ACCESSORIES";
 
 export interface ProductVariation {

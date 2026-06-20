@@ -13,6 +13,7 @@ const navLinks = [
       { href: "/products?category=tops", label: "TOPS" },
       { href: "/products?category=bottoms", label: "BOTTOMS" },
       { href: "/products?category=outerwear", label: "OUTERWEAR" },
+      { href: "/products?category=vintage", label: "VINTAGE" },
       { href: "/products?category=accessories", label: "ACCESSORIES" },
     ],
   },

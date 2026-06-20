@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "ASCENDED336 の全商品一覧。ブリティッシュパンクファッション。",
 };
 
-const CATEGORIES = ["ALL", "TOPS", "BOTTOMS", "OUTERWEAR", "ACCESSORIES"] as const;
+const CATEGORIES = ["ALL", "TOPS", "BOTTOMS", "OUTERWEAR", "VINTAGE", "ACCESSORIES"] as const;
 
 export default async function ProductsPage({
   searchParams,
