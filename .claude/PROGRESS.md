@@ -3,12 +3,12 @@
 > 作業を再開するときは、まずこのファイルを読んで現在地を把握すること。
 > 要件の詳細は `.claude/project-brief.md` を参照。
 
-最終更新: 2026-06-21
+最終更新: 2026-08-20
 
 ## リポジトリ / デプロイ
 - GitHub: https://github.com/kurotsuka0108-web/ascended336 （Public）
 - 本番: https://ascended336.vercel.app/ （Vercel）
-- ブランチ: `main`（`origin/main` を追跡・mainが作業ブランチ）。最新コミット `cf59bce`
+- ブランチ: `main`（`origin/main` を追跡）。クラウド作業時は `claude/ecommerce-site-continuation-16vxap` で開発 → mainへ取り込む
 - ⚠️ gitルートは **ascended336フォルダ単体**
 
 ## 起動方法
@@ -20,8 +20,8 @@ npx tsc --noEmit   # 型チェック
 ## フェーズ進捗
 - フェーズ1 設計・計画 … ✅
 - フェーズ2 実装（BASE API連携データ層） … ✅
-- **フェーズ3 スタイリング … 🚧 ほぼ完了（残り：Storyページ演出のみ）**
-- フェーズ4 動作確認 … 未
+- **フェーズ3 スタイリング … ✅ 完了**
+- **フェーズ4 動作確認 … 🚧 進行中（主要4ページを実ブラウザで検証済み）**
 - フェーズ5 仕上げ … 未
 
 ## フェーズ3で完了済み
@@ -36,13 +36,35 @@ npx tsc --noEmit   # 型チェック
 - **VINTAGEカテゴリー追加**（型/推定/フィルタ/バナー/ヘッダー）。古着モック5点（一点物=ONEサイズ在庫1）。商品計35点。
 - **CategoryBannerのスマホ縦線崩れ修正**（divide-x→gap-px方式・最終項目を全幅化）
 - 紛れ込みの `Footer 2.tsx` 削除
+- **Storyページ本文の刷新**（ブランドストーリー確定版）
+  - 原稿はセリの花言葉「貧相だけど高潔」を軸にした**詩のリズム**の文章。散文化せず、改行位置を原稿のまま1行として出す方針。
+  - `src/lib/story-content.ts`: 本文をデータとして分離。ブロック種別は verse / chain / quote / accent / define。文中の `*...*` がブランドレッドになる強調記法。**文言の修正はこのファイルだけ触ればよい**。
+  - `StoryHero`: ブランドの一行「— 貧相でも、高潔であれ。—」を掲げるエピグラフ構成に変更。
+  - `StoryChapters`: 01 THE FLOWER／一輪のセリ、02 THE STAR／星、03 THE ASCENT／昇華。行ごとのマスクリビール、連鎖3行（星は尖っている→尖りは反骨→反骨は自由）の階段状stagger、特大引用、03章のみ登場の移動量を大きく（＝上昇）。
+  - `StarMark`: ロゴの星（セリのつぼみ）を模した七芒星SVG。背景装飾とアクセント行の行頭に使用。
+  - 日本語の折り返し対策: 引用・本文に `word-break: auto-phrase` ＋ `text-balance`。「自分で上げ／ろ。」のような不自然な改行を防ぐ。
+- **Storyページ演出**（フェーズ3の最終項目）
+  - `StoryHero`: ヒーローを `.placeholder-surface` 化＋`useScroll`/`useTransform` でパララックス（背面レイヤーを -12%〜12%）。中央に薄い「336」、上下グラデでなじませ、ラベルはスクロールで濃淡。
+  - `StoryChapters`: 章ごとに `whileInView` stagger（大きなアウトライン章番号がスケールダウンで登場 → 番号/罫線が左から伸びる → タイトル → 本文 → CTA）。
+  - `src/lib/use-reduced-motion.ts` 新規: **ハイドレーション安全な** prefers-reduced-motion 判定（`useSyncExternalStore`）。framer-motion の `useReducedMotion()` はクライアント初回描画から実値を返すため、それで DOM を出し分けるとハイドレーション不一致になる。
 
 ## 次にやること
-1. **【次はここ】セクション4：Storyページ演出**（承認済みプランの残り1つ）
-   - `src/app/story/page.tsx` を client部品化：`StoryHero`（ヒーロー画像プレースホルダーを `.placeholder-surface` 化＋`useScroll`/`useTransform`でパララックス、`useReducedMotion`ガード）、`StoryChapters`（各章 `whileInView` fade-up＋大きな章番号の登場アニメ）。`#2a2a2a`ベタを `.placeholder-surface` に。
-   - 登場系は `src/lib/animations.ts` の `fadeInUp`/`staggerContainer` 再利用。
-2. その後: SEO仕上げ（`sitemap.ts`/`robots.ts`/`og:image`）、Instagram埋め込み。
+1. **フェーズ4 動作確認の続き**
+   - 済: `/` `/lookbook` `/story` `/products` を reduced-motion 有無の両方で検証 → **コンソールエラー0・ハイドレーション不一致0・横スクロール溢れなし**（1440px）。
+   - 未: 商品詳細 `/products/[id]`、スマホ幅（320/390px）での全ページ通し確認、カート/ドロワーなどの操作系。
+2. フェーズ5 仕上げ: SEO（`sitemap.ts`/`robots.ts`/`og:image`）、Instagram埋め込み。
 3. （任意）lookbookの各LOOK→商品詳細リンク導線（写真と商品が揃ったら）。
+
+## 既知の注意点（ハマりどころ）
+- **SVG座標に `Math.sin` / `Math.cos` の結果をそのまま入れないこと。**
+  Node とブラウザで最下位ビットがずれ、ハイドレーション不一致になる（`StarMark` で実際に発生）。
+  必ず `Number(n.toFixed(3))` のように丸めてから属性に渡す。
+- **framer-motion の `useReducedMotion()` を DOM の出し分けに使わないこと。**
+  クライアント初回描画から実値を返す一方、サーバー描画は常に `false` なので、
+  `style` の出し分けやツリー分岐に使うとハイドレーション不一致になる
+  （実際に `/lookbook` `/` で `Hydration failed` が出ていた）。
+  そういう用途は `src/lib/use-reduced-motion.ts` の `useHydratedReducedMotion()` を使う。
+  `animate`/`transition` prop の出し分け（`Marquee`）はマウント後の適用なので `useReducedMotion()` のままでOK。
 
 ## ⚠️ 本番に出ているデモ用仮データ / 残置ファイル
 - `public/sample/*.svg` と `src/lib/mock-products.ts` の `DEMO_IMAGES`（商品0,1=id1000,1001）→ ギャラリー確認用の仮画像。実画像/BASE連携後に削除。

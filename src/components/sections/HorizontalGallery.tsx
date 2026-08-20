@@ -2,7 +2,8 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useHydratedReducedMotion } from "@/lib/use-reduced-motion";
 
 export interface GalleryItem {
   id: string | number;
@@ -45,7 +46,9 @@ export default function HorizontalGallery({
   const trackRef = useRef<HTMLDivElement>(null);
   const distanceRef = useRef(0);
   const [height, setHeight] = useState<number | null>(null);
-  const reduce = useReducedMotion();
+  // framer-motion の useReducedMotion() はクライアント初回描画から実値を返すため、
+  // ツリーを分岐する用途ではハイドレーション不一致になる。サーバー描画と揃うこちらを使う。
+  const reduce = useHydratedReducedMotion();
 
   const { scrollYProgress } = useScroll({
     target: outerRef,
