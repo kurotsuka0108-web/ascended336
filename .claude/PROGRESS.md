@@ -3,12 +3,12 @@
 > 作業を再開するときは、まずこのファイルを読んで現在地を把握すること。
 > 要件の詳細は `.claude/project-brief.md` を参照。
 
-最終更新: 2026-06-21
+最終更新: 2026-08-20
 
 ## リポジトリ / デプロイ
 - GitHub: https://github.com/kurotsuka0108-web/ascended336 （Public）
 - 本番: https://ascended336.vercel.app/ （Vercel）
-- ブランチ: `main`（`origin/main` を追跡・mainが作業ブランチ）。最新コミット `cf59bce`
+- ブランチ: `main`（`origin/main` を追跡）。クラウド作業時は `claude/ecommerce-site-continuation-16vxap` で開発 → mainへ取り込む
 - ⚠️ gitルートは **ascended336フォルダ単体**
 
 ## 起動方法
@@ -20,8 +20,8 @@ npx tsc --noEmit   # 型チェック
 ## フェーズ進捗
 - フェーズ1 設計・計画 … ✅
 - フェーズ2 実装（BASE API連携データ層） … ✅
-- **フェーズ3 スタイリング … 🚧 ほぼ完了（残り：Storyページ演出のみ）**
-- フェーズ4 動作確認 … 未
+- **フェーズ3 スタイリング … ✅ 完了**
+- **フェーズ4 動作確認 … 🚧 着手（Storyページのみ検証済み）**
 - フェーズ5 仕上げ … 未
 
 ## フェーズ3で完了済み
@@ -36,13 +36,19 @@ npx tsc --noEmit   # 型チェック
 - **VINTAGEカテゴリー追加**（型/推定/フィルタ/バナー/ヘッダー）。古着モック5点（一点物=ONEサイズ在庫1）。商品計35点。
 - **CategoryBannerのスマホ縦線崩れ修正**（divide-x→gap-px方式・最終項目を全幅化）
 - 紛れ込みの `Footer 2.tsx` 削除
+- **Storyページ演出**（フェーズ3の最終項目）
+  - `StoryHero`: ヒーローを `.placeholder-surface` 化＋`useScroll`/`useTransform` でパララックス（背面レイヤーを -12%〜12%）。中央に薄い「336」、上下グラデでなじませ、ラベルはスクロールで濃淡。
+  - `StoryChapters`: 章ごとに `whileInView` stagger（大きなアウトライン章番号がスケールダウンで登場 → 番号/罫線が左から伸びる → タイトル → 本文 → CTA）。
+  - `src/lib/use-reduced-motion.ts` 新規: **ハイドレーション安全な** prefers-reduced-motion 判定（`useSyncExternalStore`）。framer-motion の `useReducedMotion()` はクライアント初回描画から実値を返すため、それで DOM を出し分けるとハイドレーション不一致になる。
 
 ## 次にやること
-1. **【次はここ】セクション4：Storyページ演出**（承認済みプランの残り1つ）
-   - `src/app/story/page.tsx` を client部品化：`StoryHero`（ヒーロー画像プレースホルダーを `.placeholder-surface` 化＋`useScroll`/`useTransform`でパララックス、`useReducedMotion`ガード）、`StoryChapters`（各章 `whileInView` fade-up＋大きな章番号の登場アニメ）。`#2a2a2a`ベタを `.placeholder-surface` に。
-   - 登場系は `src/lib/animations.ts` の `fadeInUp`/`staggerContainer` 再利用。
-2. その後: SEO仕上げ（`sitemap.ts`/`robots.ts`/`og:image`）、Instagram埋め込み。
-3. （任意）lookbookの各LOOK→商品詳細リンク導線（写真と商品が揃ったら）。
+1. **【要判断・バグ】`HorizontalGallery` のハイドレーションエラー**
+   - reduced-motion 有効時、`/lookbook` と `/`（トップ）で `Hydration failed because the server rendered HTML didn't match the client` が発生（Playwrightで再現確認済み）。
+   - 原因: `useReducedMotion()`（framer-motion）の値でツリーを丸ごと分岐しているため。サーバー描画は常に「モーションあり」。
+   - 対策: `src/lib/use-reduced-motion.ts` の `useHydratedReducedMotion()` に差し替えるだけ。**ユーザー確認待ち**。
+2. フェーズ4 動作確認: 他ページ（トップ/一覧/詳細/lookbook）をStoryと同様に検証（レスポンシブ・横スクロール溢れ・コンソールエラー）。
+3. フェーズ5 仕上げ: SEO（`sitemap.ts`/`robots.ts`/`og:image`）、Instagram埋め込み。
+4. （任意）lookbookの各LOOK→商品詳細リンク導線（写真と商品が揃ったら）。
 
 ## ⚠️ 本番に出ているデモ用仮データ / 残置ファイル
 - `public/sample/*.svg` と `src/lib/mock-products.ts` の `DEMO_IMAGES`（商品0,1=id1000,1001）→ ギャラリー確認用の仮画像。実画像/BASE連携後に削除。
