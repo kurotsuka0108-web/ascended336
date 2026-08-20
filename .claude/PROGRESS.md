@@ -21,7 +21,7 @@ npx tsc --noEmit   # 型チェック
 - フェーズ1 設計・計画 … ✅
 - フェーズ2 実装（BASE API連携データ層） … ✅
 - **フェーズ3 スタイリング … ✅ 完了**
-- **フェーズ4 動作確認 … 🚧 着手（Storyページのみ検証済み）**
+- **フェーズ4 動作確認 … 🚧 進行中（主要4ページを実ブラウザで検証済み）**
 - フェーズ5 仕上げ … 未
 
 ## フェーズ3で完了済み
@@ -42,13 +42,19 @@ npx tsc --noEmit   # 型チェック
   - `src/lib/use-reduced-motion.ts` 新規: **ハイドレーション安全な** prefers-reduced-motion 判定（`useSyncExternalStore`）。framer-motion の `useReducedMotion()` はクライアント初回描画から実値を返すため、それで DOM を出し分けるとハイドレーション不一致になる。
 
 ## 次にやること
-1. **【要判断・バグ】`HorizontalGallery` のハイドレーションエラー**
-   - reduced-motion 有効時、`/lookbook` と `/`（トップ）で `Hydration failed because the server rendered HTML didn't match the client` が発生（Playwrightで再現確認済み）。
-   - 原因: `useReducedMotion()`（framer-motion）の値でツリーを丸ごと分岐しているため。サーバー描画は常に「モーションあり」。
-   - 対策: `src/lib/use-reduced-motion.ts` の `useHydratedReducedMotion()` に差し替えるだけ。**ユーザー確認待ち**。
-2. フェーズ4 動作確認: 他ページ（トップ/一覧/詳細/lookbook）をStoryと同様に検証（レスポンシブ・横スクロール溢れ・コンソールエラー）。
-3. フェーズ5 仕上げ: SEO（`sitemap.ts`/`robots.ts`/`og:image`）、Instagram埋め込み。
-4. （任意）lookbookの各LOOK→商品詳細リンク導線（写真と商品が揃ったら）。
+1. **フェーズ4 動作確認の続き**
+   - 済: `/` `/lookbook` `/story` `/products` を reduced-motion 有無の両方で検証 → **コンソールエラー0・ハイドレーション不一致0・横スクロール溢れなし**（1440px）。
+   - 未: 商品詳細 `/products/[id]`、スマホ幅（320/390px）での全ページ通し確認、カート/ドロワーなどの操作系。
+2. フェーズ5 仕上げ: SEO（`sitemap.ts`/`robots.ts`/`og:image`）、Instagram埋め込み。
+3. （任意）lookbookの各LOOK→商品詳細リンク導線（写真と商品が揃ったら）。
+
+## 既知の注意点（ハマりどころ）
+- **framer-motion の `useReducedMotion()` を DOM の出し分けに使わないこと。**
+  クライアント初回描画から実値を返す一方、サーバー描画は常に `false` なので、
+  `style` の出し分けやツリー分岐に使うとハイドレーション不一致になる
+  （実際に `/lookbook` `/` で `Hydration failed` が出ていた）。
+  そういう用途は `src/lib/use-reduced-motion.ts` の `useHydratedReducedMotion()` を使う。
+  `animate`/`transition` prop の出し分け（`Marquee`）はマウント後の適用なので `useReducedMotion()` のままでOK。
 
 ## ⚠️ 本番に出ているデモ用仮データ / 残置ファイル
 - `public/sample/*.svg` と `src/lib/mock-products.ts` の `DEMO_IMAGES`（商品0,1=id1000,1001）→ ギャラリー確認用の仮画像。実画像/BASE連携後に削除。
