@@ -1,33 +1,16 @@
 import type { Metadata } from "next";
 import StoryHero from "@/components/sections/StoryHero";
-import StoryChapters, { type Chapter } from "@/components/sections/StoryChapters";
+import StoryChapters from "@/components/sections/StoryChapters";
 
 export const metadata: Metadata = {
   title: "OUR STORY",
-  description: "ASCENDED336 のブランドストーリー。ブリティッシュパンクの精神を現代へ。",
+  description:
+    "ASCENDED336 のブランドストーリー。一輪のセリの花言葉「貧相だけど高潔」から生まれたブランドの信条。",
 };
-
-const CHAPTERS: Chapter[] = [
-  {
-    num: "01",
-    title: "THE ORIGIN",
-    body: "70年代のロンドン。Sex Pistols が轟かせた怒りと解放の音が、街のレンガ壁に刻まれた。あの時代の反骨心が、このブランドの原点。",
-  },
-  {
-    num: "02",
-    title: "THE PHILOSOPHY",
-    body: "「上品さの中に宿る反骨心」。荒々しさと品格は矛盾しない。ASCENDED336 はその両立を、一着一着に込める。",
-  },
-  {
-    num: "03",
-    title: "THE FUTURE",
-    body: "パンクは終わらない。形を変え、世代を超え、今もどこかで燃え続けている。あなたの反骨心を、纏え。",
-  },
-];
 
 export default function StoryPage() {
   return (
-    <div className="min-h-screen bg-brand-black">
+    <div className="min-h-screen bg-brand-black overflow-x-clip">
 
       {/* Page header */}
       <div className="border-b border-brand-gray">
@@ -44,11 +27,11 @@ export default function StoryPage() {
         </div>
       </div>
 
-      {/* Hero image placeholder — パララックス */}
+      {/* ブランドの一行 */}
       <StoryHero />
 
-      {/* Chapters — スクロール登場 */}
-      <StoryChapters chapters={CHAPTERS} />
+      {/* 本編 */}
+      <StoryChapters />
     </div>
   );
 }
