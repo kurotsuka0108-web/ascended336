@@ -3,7 +3,7 @@
 > 作業を再開するときは、まずこのファイルを読んで現在地を把握すること。
 > 要件の詳細は `.claude/project-brief.md` を参照。
 
-最終更新: 2026-08-20
+最終更新: 2026-08-22
 
 ## リポジトリ / デプロイ
 - GitHub: https://github.com/kurotsuka0108-web/ascended336 （Public）
@@ -55,12 +55,52 @@ npx tsc --noEmit   # 型チェック
   - `StoryChapters`: 章ごとに `whileInView` stagger（大きなアウトライン章番号がスケールダウンで登場 → 番号/罫線が左から伸びる → タイトル → 本文 → CTA）。
   - `src/lib/use-reduced-motion.ts` 新規: **ハイドレーション安全な** prefers-reduced-motion 判定（`useSyncExternalStore`）。framer-motion の `useReducedMotion()` はクライアント初回描画から実値を返すため、それで DOM を出し分けるとハイドレーション不一致になる。
 
+## 2026-08-22 の作業（PR #4〜#9）
+- **#4 トップのヒーロー背景を差し替え** — スマホ/タブレット/PCの3枚をユーザー提供画像に更新（`Hero.tsx` は既にブレークポイント別の出し分け済みでコード変更なし）。
+- **#5 Storyヒーローの巨大タイポがスマホで見切れる問題を修正**
+  - 原因は `fontSize: clamp(7rem, 22vw, 20rem)` の**下限**。`22vw < 7rem` になる**幅509px未満（＝スマホ全域）**でだけ下限が発動し、想定より大きく描画されていた。
+  - Dracutaz の "ASCENDED336" は **4.104em 幅**。1行で画面に収めるには `font-size ≦ 100vw / 4.104 ≒ 24.3vw` が上限。
+  - 下限を `4rem` に下げて全画面幅で `22vw` を効かせ、常に画面幅の約90%に収まるようにした。**下限は必ず 22vw を下回る値にすること。**
+- **#6 Turbopack のワークスペースルートを明示** — ホームディレクトリに空の孤児 `package-lock.json` があり、Next.js がそこをルートと誤判定して起動警告＋`@swc/helpers` の解決エラーが出ていた。孤児ファイルを削除し、`next.config.ts` に `turbopack.root` を固定（再発防止）。
+- **#7 実商品4点の登録＋おすすめ欄**（下の専用セクション参照）
+- **#8 商品写真に斜めストライプが重なる問題を修正**
+  - `.placeholder-surface::after` の45度ストライプは**擬似要素なので子要素より後に描画され、写真の上に重なる**。写真の不透明度を上げても消えない。
+  - 写真があるときは `placeholder-surface` を外して無地（`bg-brand-black`）にする。画像未登録時のプレースホルダー表示は従来どおり維持。
+  - `ProductGallery`（詳細）と `ProductCard`（一覧）の両方に同じ重なりが出ていた。
+- **#9 このPROGRESS.mdの更新**
+
+## 実商品の登録（PR #7）
+撮影済みのTシャツ4点。物撮り（3:4）とモデル着用の2点構成。画像は `public/products/`。
+
+| URL | 商品名 |
+|---|---|
+| `/products/graffiti-tee-white` | GRAFFITI TAG TEE / WHITE |
+| `/products/emblem-tee-white` | EMBLEM LOGO TEE / WHITE |
+| `/products/graffiti-tee-black` | GRAFFITI TAG TEE / BLACK |
+| `/products/emblem-tee-black` | EMBLEM LOGO TEE / BLACK |
+
+- 物撮りを `images[0]`（メイン）に。一覧カードは `aspect-[3/4]` なので物撮りが無加工でぴったり収まる。
+- **説明文はストーリーの原稿（`lib/story-content.ts`）からモチーフを引き、最終行にその章の一行を置く**構成で統一。原稿を書き換えるときは商品説明との対応も確認すること。
+- `ProductGallery` のメイン画像は **`object-contain`**。物撮り3:4とモデル着用2:3で比率が混在し、`object-cover` だと全身カットの頭と足元が切れるため。逆に枠を2:3にすると物撮りの袖が切れる。商品写真をトリミングしない方を優先している。
+- **おすすめ欄**: 商品ページ下部の `YOU MAY ALSO LIKE`。新規コンポーネントは作らず**トップの `FeaturedProducts` を再利用**。選定は `lib/base.ts` の `getRelatedProducts()`（自分自身を除外・同カテゴリー優先・最大4件）。
+  **順序は決定的にすること。** ランダムにするとISR再生成やハイドレーションで内容がズレる。
+
+### ⚠️ 実商品の要確定事項（すべて仮値。コード内に `TODO(要確定)` あり）
+| 項目 | 現在の値 | 変更箇所 |
+|---|---|---|
+| 価格 | ¥8,800（4点共通） | `mock-products.ts` の `PROVISIONAL_TEE_PRICE` の1行 |
+| サイズ | FREE（未定のためユーザー指示で一旦FREE） | `REAL_SEEDS` の `variations` を `APPAREL_SIZES` 等へ |
+| 在庫数 | 8 | 同上 |
+| 商品名・説明文 | Claudeが起草 | `REAL_SEEDS` |
+
 ## 次にやること
-1. **フェーズ4 動作確認の続き**
+1. **実商品の情報を確定させる**（上の「要確定事項」の表を参照）。価格・サイズ・在庫がすべて仮値のまま本番に出ている。
+2. **フェーズ4 動作確認の続き**
    - 済: `/` `/lookbook` `/story` `/products` を reduced-motion 有無の両方で検証 → **コンソールエラー0・ハイドレーション不一致0・横スクロール溢れなし**（1440px）。
-   - 未: 商品詳細 `/products/[id]`、スマホ幅（320/390px）での全ページ通し確認、カート/ドロワーなどの操作系。
-2. フェーズ5 仕上げ: SEO（`sitemap.ts`/`robots.ts`/`og:image`）、Instagram埋め込み。
-3. （任意）lookbookの各LOOK→商品詳細リンク導線（写真と商品が揃ったら）。
+   - 商品詳細 `/products/[id]`: 8/22時点で **HTTPレスポンスとHTMLの内容のみ自動検証済み**（4商品とも200、画像8点とも200、おすすめ欄4件・自分自身の除外を確認）。**実ブラウザでの目視・コンソールエラー確認は未実施。**
+   - 未: スマホ幅（320/390px）での全ページ通し確認、カート/ドロワーなどの操作系。
+3. フェーズ5 仕上げ: SEO（`sitemap.ts`/`robots.ts`/`og:image`）、Instagram埋め込み。
+4. （任意）lookbookの各LOOK→商品詳細リンク導線 — **実商品4点と写真が揃ったので着手可能になった**。
 
 ## 既知の注意点（ハマりどころ）
 - **SVG座標に `Math.sin` / `Math.cos` の結果をそのまま入れないこと。**
@@ -74,13 +114,15 @@ npx tsc --noEmit   # 型チェック
   `animate`/`transition` prop の出し分け（`Marquee`）はマウント後の適用なので `useReducedMotion()` のままでOK。
 
 ## ⚠️ 本番に出ているデモ用仮データ / 残置ファイル
-- `public/sample/*.svg` と `src/lib/mock-products.ts` の `DEMO_IMAGES`（商品0,1=id1000,1001）→ ギャラリー確認用の仮画像。実画像/BASE連携後に削除。
+- `public/sample/*.svg` → ギャラリー確認用の仮画像。id1000（DESTROY MOHAIR KNIT）と id1001（SAFETY PIN SHIRT）に割り当て。BASE連携後に削除。
+  - **`DEMO_IMAGES` は廃止済み**（PR #7）。配列の添字直指定（`{0:…, 1:…}`）だったため、商品を1点足すと別商品に画像が付く状態だった。現在は `MockSeed.images` に各 seed が直接持つ。
+  - 実商品とモックは `REAL_SEEDS` / `SEEDS` の別配列。モックのIDは `SEEDS` 内の添字+1000 で固定してあるので、**実商品を足しても既存の `/products/1000` 等のURLは変わらない**。
 - `next.config.ts` の `dangerouslyAllowSVG`（＋CSP/attachment）はデモSVG用。デモ撤去時に見直し可。
 - `public/wall-bg.png` は旧ヒーロー背景。現在未使用だが**残置希望**（削除しない）。
 - ヒーロー背景の元画像はユーザー提供。差し替え時は `public/hero-bg*.png` を置換。
 
 ## BASEトークンの状況
-- 未取得 → モック35点で表示中（想定どおり）。取得手順は `.env.example` 参照。
+- 未取得 → **実商品4点＋モック35点＝計39点**で表示中（想定どおり）。取得手順は `.env.example` 参照。
 
 ## スマホ（claude.ai/code）で続ける場合
 - GitHubリポジトリは同期済み。claude.ai/code をブラウザで開き本リポジトリを選択 → このPROGRESS.mdから再開。
