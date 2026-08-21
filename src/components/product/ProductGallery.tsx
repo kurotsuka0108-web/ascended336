@@ -24,8 +24,15 @@ export default function ProductGallery({ images, name, category }: ProductGaller
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Main image */}
-      <div className="placeholder-surface aspect-[3/4] relative overflow-hidden border border-brand-gray-mid">
+      {/* Main image
+          placeholder-surface は画像が無いときだけ。::after の斜めストライプは擬似要素
+          ＝子要素より後に描画されるため写真の上に重なり、object-contain の余白にも出る。
+          写真があるときは無地の背景に切り替えて模様を出さない。 */}
+      <div
+        className={`aspect-[3/4] relative overflow-hidden border border-brand-gray-mid ${
+          hasImages ? "bg-brand-black" : "placeholder-surface"
+        }`}
+      >
         {hasImages ? (
           <AnimatePresence mode="wait" initial={false}>
             <motion.div

@@ -24,10 +24,14 @@ export default function ProductCard({
                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red"
       aria-label={`${name} - ¥${price.toLocaleString()}`}
     >
-      {/* Image area */}
+      {/* Image area
+          placeholder-surface（斜めストライプ）は画像が無いときだけ。
+          ::after が写真の上に重なって線が透けて見えるため、画像ありでは無地にする。 */}
       <div
-        className="placeholder-surface aspect-[3/4] overflow-hidden relative
-                   group-hover:opacity-90 transition-opacity duration-300"
+        className={`aspect-[3/4] overflow-hidden relative
+                   group-hover:opacity-90 transition-opacity duration-300 ${
+                     mainImage ? "bg-brand-black" : "placeholder-surface"
+                   }`}
       >
         {mainImage ? (
           <Image
