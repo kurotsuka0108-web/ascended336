@@ -1,9 +1,7 @@
 "use client";
 
-import { useRef } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useHydratedReducedMotion } from "@/lib/use-reduced-motion";
+import { motion } from "framer-motion";
 import { CREDO } from "@/lib/story-content";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -13,34 +11,19 @@ const EASE = [0.22, 1, 0.36, 1] as const;
  *
  * 背景は実写のグラフィティ壁（wall-bg.png＝ロゴなし版）。その上に巨大な
  * ブラシ体のブランド名を screen 合成で重ね、壁に描かれた壁画のように見せる。
- * 単色でベタ塗りした図形を置くと壁から浮いてステッカーのように見えるため、
- * 合成モードで下の壁の凹凸を必ず透かすこと。
+ *
+ * 背景は壁・文字とも完全に固定。パララックスで別々に動かすと両者がズレて
+ * 「壁に描かれている」関係が崩れるため、動かすなら必ず一体で動かすこと。
+ * 動くのは CREDO の初回登場のみ。
  */
 export default function StoryHero() {
-  const ref = useRef<HTMLDivElement>(null);
-  const animated = !useHydratedReducedMotion();
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-
-  const wallY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
-  const motifX = useTransform(scrollYProgress, [0, 1], ["-3%", "3%"]);
-  const motifScale = useTransform(scrollYProgress, [0, 1], [1.02, 1.14]);
-
   return (
     <div
-      ref={ref}
       className="relative w-full min-h-[62vh] md:min-h-[80vh] flex items-center justify-center
                  overflow-hidden border-y border-brand-gray-mid px-6 py-24"
     >
-      {/* 実写のグラフィティ壁（パララックス） */}
-      <motion.div
-        className="absolute inset-x-0 -top-[10%] h-[120%]"
-        style={animated ? { y: wallY } : undefined}
-        aria-hidden="true"
-      >
+      {/* 実写のグラフィティ壁 */}
+      <div className="absolute inset-0" aria-hidden="true">
         <Image
           src="/wall-bg.png"
           alt=""
@@ -49,9 +32,9 @@ export default function StoryHero() {
           sizes="100vw"
           className="object-cover object-center"
         />
-      </motion.div>
+      </div>
 
-      {/* 減光。テキストの可読性を確保しつつ、周辺を落として中央に視線を集める */}
+      {/* 減光。周辺を落として中央に視線を集める */}
       <div
         className="pointer-events-none absolute inset-0"
         aria-hidden="true"
@@ -69,31 +52,24 @@ export default function StoryHero() {
         }}
       />
 
-      {/* モチーフは減光の「上」に置く。下に置くとビネットに潰されて見えない。
+      {/* 壁に描かれた文字。減光の「上」に置くこと（下だとビネットに潰されて見えない）。
           screen 合成にすることで壁の凹凸が透け、ベタ塗りのステッカーに見えない */}
-      <motion.div
+      <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 flex items-center justify-center
                    opacity-[0.42] md:opacity-[0.62]"
-        style={{
-          mixBlendMode: "screen",
-          ...(animated ? { x: motifX, scale: motifScale } : {}),
-        }}
+        style={{ mixBlendMode: "screen" }}
       >
-        {/* スクロール連動とは別に、ごくゆっくり左右に漂わせる。
-            外側＝スクロール、内側＝常時ドリフトで x の指定が衝突しないよう分ける */}
-        <motion.span
+        <span
           className="font-display leading-none whitespace-nowrap select-none text-transparent"
           style={{
             fontSize: "clamp(7rem, 22vw, 20rem)",
             WebkitTextStroke: "2px rgba(170,170,170,0.85)",
           }}
-          animate={{ x: ["-1.6%", "1.6%", "-1.6%"] }}
-          transition={{ duration: 26, ease: "easeInOut", repeat: Infinity }}
         >
           ASCENDED336
-        </motion.span>
-      </motion.div>
+        </span>
+      </div>
 
       {/* テキスト直下だけ落とすスポット。壁の赤とラベルの赤が干渉するのを防ぐ */}
       <div
