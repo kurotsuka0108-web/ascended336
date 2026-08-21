@@ -19,21 +19,94 @@ const FREE_SIZE: ProductVariation[] = [{ id: "free", label: "FREE", stock: 8 }];
 /** 古着など一点物（在庫1のワンサイズ） */
 const ONE_OF_A_KIND: ProductVariation[] = [{ id: "one", label: "ONE", stock: 1 }];
 
+/**
+ * 実商品Tシャツの仮価格（税込）。正式な価格が決まり次第ここだけ変更する。
+ * 既存モックの ANARCHY GRAPHIC TEE と同額に揃えてある。
+ */
+const PROVISIONAL_TEE_PRICE = 8800;
+
 type MockSeed = {
   name: string;
   price: number;
   category: ProductCategory;
   description: string;
+  /** 商品画像のパス（先頭がメイン）。未指定なら画像なしのプレースホルダー表示 */
+  images?: string[];
   accessory?: boolean;
   /** 一点物（古着など）。ONEサイズ・在庫1で表示 */
   oneOfAKind?: boolean;
   soldOut?: boolean;
 };
 
+/**
+ * ── 実商品 ──
+ * 撮影済みの実在アイテム。物撮り（3:4）とモデル着用の2点で構成する。
+ *
+ * 説明文はストーリーページの原稿（lib/story-content.ts の CHAPTERS / CREDO）から
+ * モチーフと言い回しを引いている。最終行はその章の一行を置く決まりで、
+ * 詳細ページ側が whitespace-pre-line なので \n がそのまま改行として出る。
+ * 原稿を書き換えるときは、こちらの文言との対応も確認すること。
+ *
+ * TODO(要確定): price と在庫数は仮値。サイズ展開が未定のため一旦 FREE で運用中。
+ * サイズが決まったら variations を APPAREL_SIZES 等に差し替えること。
+ */
+const REAL_SEEDS: (MockSeed & { id: string })[] = [
+  {
+    id: "graffiti-tee-white",
+    name: "GRAFFITI TAG TEE / WHITE",
+    price: PROVISIONAL_TEE_PRICE,
+    category: "TOPS",
+    description:
+      "一筆で書き切ったタグを、そのまま胸に置いた。線の震えも、かすれも、消さずに残してある。飾らなくても、媚びなくても、筆跡だけで立っていられる一枚。\n星は尖っている。尖りは反骨、反骨は自由。",
+    images: [
+      "/products/graffiti-tee-white-front.jpg",
+      "/products/graffiti-tee-white-model.jpg",
+    ],
+  },
+  {
+    id: "emblem-tee-white",
+    name: "EMBLEM LOGO TEE / WHITE",
+    price: PROVISIONAL_TEE_PRICE,
+    category: "TOPS",
+    description:
+      "セリのつぼみは、星の形をしている。その星とセリフ体のロゴを、胸元に静かに置いた。小さくて、素朴で、見落とされるような花。それでも花言葉は「貧相だけど高潔」。\n派手じゃなくてもいい。でも、誇りだけは失うな。",
+    images: [
+      "/products/emblem-tee-white-front.jpg",
+      "/products/emblem-tee-white-model.jpg",
+    ],
+  },
+  {
+    id: "graffiti-tee-black",
+    name: "GRAFFITI TAG TEE / BLACK",
+    price: PROVISIONAL_TEE_PRICE,
+    category: "TOPS",
+    description:
+      "黒地に白く抜いたタグ。夜の壁に残されたサインのように、筆跡だけが浮かび上がる。過去も、痛みも、劣等感も、全部ひっくるめて自分の美学に変えていくための一枚。\n自分の価値を、自分で上げろ。",
+    images: [
+      "/products/graffiti-tee-black-front.jpg",
+      "/products/graffiti-tee-black-model.jpg",
+    ],
+  },
+  {
+    id: "emblem-tee-black",
+    name: "EMBLEM LOGO TEE / BLACK",
+    price: PROVISIONAL_TEE_PRICE,
+    category: "TOPS",
+    description:
+      "漆黒のボディに、白の星とセリフ体のロゴ。Ascended ＝ 昇華・上昇。掲げる意味はひとつ、自分の価値を自分で上げること。黒と白の対比が、品格と反骨を同時に成立させる。\n貧相でも、高潔であれ。",
+    images: [
+      "/products/emblem-tee-black-front.jpg",
+      "/products/emblem-tee-black-model.jpg",
+    ],
+  },
+];
+
 const SEEDS: MockSeed[] = [
   // ── TOPS ──
-  { name: "DESTROY MOHAIR KNIT", price: 28000, category: "TOPS", description: "粗く編み立てたモヘアニット。あえて崩したホールと不揃いなステッチが、退廃と気高さを同居させる。" },
-  { name: "SAFETY PIN SHIRT", price: 19800, category: "TOPS", description: "セーフティピンをあしらったブロードシャツ。上品なシルエットに反骨のディテールを忍ばせた一着。" },
+  // この2点だけ /public/sample のデモ用SVGを割り当て、画像未登録以外の見え方
+  // （複数画像のサムネイル切替）も一覧・詳細で確認できるようにしている。
+  { name: "DESTROY MOHAIR KNIT", price: 28000, category: "TOPS", description: "粗く編み立てたモヘアニット。あえて崩したホールと不揃いなステッチが、退廃と気高さを同居させる。", images: ["/sample/look-front.svg", "/sample/look-back.svg", "/sample/look-detail.svg"] },
+  { name: "SAFETY PIN SHIRT", price: 19800, category: "TOPS", description: "セーフティピンをあしらったブロードシャツ。上品なシルエットに反骨のディテールを忍ばせた一着。", images: ["/sample/look-front.svg", "/sample/look-detail.svg"] },
   { name: "ANARCHY GRAPHIC TEE", price: 8800, category: "TOPS", description: "ヘビーウェイト天竺に色褪せ加工を施したグラフィックTシャツ。ロンドンの壁を思わせるプリント。" },
   { name: "TARTAN PUNK BLOUSE", price: 22000, category: "TOPS", description: "タータンチェックのブラウス。クラシックな織りに荒削りなカッティングを掛け合わせた。" },
   { name: "DISTRESSED RIB KNIT", price: 17600, category: "TOPS", description: "リブ編みのダメージニット。タイトなフォルムが上品な反逆を演出する。" },
@@ -77,17 +150,8 @@ const SEEDS: MockSeed[] = [
   { name: "FADED PUNK DENIM (USED)", price: 23100, category: "VINTAGE", description: "理想的に色落ちした古着デニム。安全ピンの補修跡まで愛おしい。", oneOfAKind: true, soldOut: true },
 ];
 
-/**
- * デモ用サンプル画像（/public/sample）。
- * 画像未登録時の挙動と、ギャラリーの複数画像切替を確認するための仮データ。
- * BASE 連携・実画像登録後は不要（i===0,1 の割り当てを外すだけでよい）。
- */
-const DEMO_IMAGES: Record<number, string[]> = {
-  0: ["/sample/look-front.svg", "/sample/look-back.svg", "/sample/look-detail.svg"],
-  1: ["/sample/look-front.svg", "/sample/look-detail.svg"],
-};
-
-export const MOCK_PRODUCTS: Product[] = SEEDS.map((seed, i) => {
+/** seed と ID から Product を組み立てる。 */
+function buildProduct(seed: MockSeed, id: string): Product {
   const variations = seed.oneOfAKind
     ? ONE_OF_A_KIND
     : seed.accessory
@@ -95,15 +159,31 @@ export const MOCK_PRODUCTS: Product[] = SEEDS.map((seed, i) => {
       : APPAREL_SIZES;
   const inStock = !seed.soldOut;
   return {
-    id: String(1000 + i),
+    id,
     name: seed.name,
     description: seed.description,
     price: seed.price,
-    images: DEMO_IMAGES[i] ?? [],
+    images: seed.images ?? [],
     category: seed.category,
     inStock,
     variations: inStock
       ? variations
       : variations.map((v) => ({ ...v, stock: 0 })),
   };
-});
+}
+
+/**
+ * 実商品を先頭に、モック商品を後ろに連結する。
+ *
+ * モック側の ID は「SEEDS 内の添字 + 1000」で固定する。実商品を先頭に足しても
+ * 添字がずれないよう配列を分けてあるので、既存の /products/1000 等のURLは不変。
+ * 実商品には内容が読み取れるスラッグを与える（例: /products/graffiti-tee-white）。
+ */
+export const MOCK_PRODUCTS: Product[] = [
+  ...REAL_SEEDS.map((seed) => ({
+    ...buildProduct(seed, seed.id),
+    // サイズ展開が未定のため一旦 FREE。決まり次第 APPAREL_SIZES 等へ差し替える。
+    variations: FREE_SIZE,
+  })),
+  ...SEEDS.map((seed, i) => buildProduct(seed, String(1000 + i))),
+];

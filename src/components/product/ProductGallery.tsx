@@ -36,12 +36,15 @@ export default function ProductGallery({ images, name, category }: ProductGaller
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
+              {/* 物撮りは3:4・モデル着用は2:3と縦横比が混在するため object-contain。
+                  object-cover にすると2:3の全身カットで頭と足元が切れる。
+                  商品写真をトリミングしないことを優先し、余白は枠の質感で受ける。 */}
               <Image
                 src={images[active]}
                 alt={`${name}（${active + 1}/${images.length}）`}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
+                className="object-contain"
                 priority
               />
             </motion.div>
