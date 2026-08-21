@@ -63,7 +63,11 @@ export default function StoryHero() {
         <span
           className="font-display leading-none whitespace-nowrap select-none text-transparent"
           style={{
-            fontSize: "clamp(7rem, 22vw, 20rem)",
+            // Dracutaz の "ASCENDED336" は 4.104em 幅。1行で画面に収めるには
+            // font-size ≦ 100vw / 4.104 ≒ 24.3vw が上限で、22vw なら画面幅の約90%に収まる。
+            // 下限を 22vw より大きい値にすると狭い画面でだけ下限が効いて見切れるので、
+            // ここは必ず 22vw を下回る値にしておくこと（旧 7rem は 509px 未満で破綻していた）。
+            fontSize: "clamp(4rem, 22vw, 20rem)",
             WebkitTextStroke: "2px rgba(170,170,170,0.85)",
           }}
         >
