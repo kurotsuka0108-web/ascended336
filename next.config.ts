@@ -1,6 +1,12 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // ワークスペースのルートを明示する。Next.js は上位ディレクトリのロックファイルを
+  // 探してルートを自動判定するため、プロジェクト外（例: ホームディレクトリ）に
+  // package-lock.json が紛れ込むとそちらをルートに選び、ファイル監視の肥大化・
+  // モジュール解決の失敗・出力ファイルトレースのズレを招く。固定して影響を断つ。
+  turbopack: { root: path.resolve(__dirname) },
   images: {
     // BASE の商品画像CDNを許可（本番連携時に使用）
     remotePatterns: [
