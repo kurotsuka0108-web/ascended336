@@ -202,5 +202,25 @@ export async function getProduct(id: string): Promise<Product | null> {
   }
 }
 
+/**
+ * 商品詳細ページ下部に出すおすすめ商品を返す。
+ *
+ * 同カテゴリーを優先し、足りなければ他カテゴリーで補う。並びは一覧の取得順を
+ * そのまま使う。ランダムにすると再読み込みやISRの再生成のたびに内容が変わり、
+ * サーバーとクライアントで結果がズレるため、必ず決定的な順序にすること。
+ *
+ * @param product 表示中の商品（これ自身は除外する）
+ * @param limit   最大件数
+ */
+export async function getRelatedProducts(
+  product: Product,
+  limit = 4,
+): Promise<Product[]> {
+  const others = (await getProducts()).filter((p) => p.id !== product.id);
+  const sameCategory = others.filter((p) => p.category === product.category);
+  const rest = others.filter((p) => p.category !== product.category);
+  return [...sameCategory, ...rest].slice(0, limit);
+}
+
 /** 連携状態（デバッグ・表示用）。true ならモックを使用中。 */
 export const isUsingMockData = !hasCredentials;

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProduct } from "@/lib/base";
+import { getProduct, getRelatedProducts } from "@/lib/base";
 import ProductGallery from "@/components/product/ProductGallery";
+import FeaturedProducts from "@/components/sections/FeaturedProducts";
 
 type Params = { id: string };
 
@@ -40,6 +41,8 @@ export default async function ProductDetailPage({
   if (!product) {
     notFound();
   }
+
+  const related = await getRelatedProducts(product);
 
   return (
     <div className="min-h-screen bg-brand-black">
@@ -144,6 +147,14 @@ export default async function ProductDetailPage({
           </div>
         </div>
       </div>
+
+      {/* おすすめ。見出し・グリッド・スクロール演出はトップと同じ FeaturedProducts を再利用する。
+          自前の max-w / px を持つので、上の内側コンテナの外に置くこと（余白が二重になる） */}
+      {related.length > 0 && (
+        <div className="border-t border-brand-gray-mid">
+          <FeaturedProducts title="YOU MAY ALSO LIKE" products={related} />
+        </div>
+      )}
     </div>
   );
 }
