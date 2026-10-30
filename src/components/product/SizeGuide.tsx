@@ -158,15 +158,15 @@ export default function SizeGuide({ chart }: { chart: SizeChartKey }) {
           <MeasureDiagram longSleeve={data.longSleeve} />
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[420px] border-collapse font-body text-xs md:text-sm text-center">
+            <table className="w-full min-w-[300px] border-collapse font-body text-[11px] sm:text-xs md:text-sm text-center">
               <caption className="sr-only">{data.title}の実寸（cm）</caption>
               <thead>
                 <tr className="border-b border-brand-gray-mid text-brand-gray-light">
-                  <th scope="col" className="py-2 pr-2 text-left font-heading tracking-[0.2em]">
+                  <th scope="col" className="py-2 pr-1 text-left font-heading tracking-[0.15em]">
                     SIZE
                   </th>
                   {MEASURES.map((m) => (
-                    <th key={m.key} scope="col" className="py-2 px-1 font-medium whitespace-nowrap">
+                    <th key={m.key} scope="col" className="py-2 px-0.5 font-medium whitespace-nowrap">
                       {m.label}
                     </th>
                   ))}
@@ -175,11 +175,11 @@ export default function SizeGuide({ chart }: { chart: SizeChartKey }) {
               <tbody>
                 {data.rows.map((row) => (
                   <tr key={row.size} className="border-b border-brand-gray">
-                    <th scope="row" className="py-3 pr-2 text-left font-heading tracking-[0.2em]">
+                    <th scope="row" className="py-3 pr-1 text-left font-heading tracking-[0.15em]">
                       {row.size}
                     </th>
                     {MEASURES.map((m) => (
-                      <td key={m.key} className="py-3 px-1 tabular-nums">
+                      <td key={m.key} className="py-3 px-0.5 tabular-nums">
                         {row.values[m.key]}
                       </td>
                     ))}

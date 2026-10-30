@@ -7,7 +7,7 @@ export const MEASURES = [
   { key: "sleeve", label: "袖丈" },
   { key: "cuff", label: "袖口" },
   { key: "sleeveWidth", label: "袖幅" },
-  { key: "bust", label: "バスト(×2)" },
+  { key: "bust", label: "バスト" },
 ] as const;
 
 export type MeasureKey = (typeof MEASURES)[number]["key"];
