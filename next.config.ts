@@ -20,6 +20,17 @@ const nextConfig: NextConfig = {
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+  // 実商品は当初「デザイン×色」で1商品だったが、色を詳細ページで選ぶ形にまとめた。
+  // 共有済みの旧URLが切れないよう、色を選んだ状態の新URLへ転送する。
+  async redirects() {
+    return ["graffiti-tee", "emblem-tee"].flatMap((id) =>
+      ["white", "black"].map((color) => ({
+        source: `/products/${id}-${color}`,
+        destination: `/products/${id}?color=${color}`,
+        permanent: true,
+      })),
+    );
+  },
 };
 
 export default nextConfig;
