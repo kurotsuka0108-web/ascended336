@@ -1,11 +1,10 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import StarMark from "@/components/sections/StarMark";
-import { useHydratedReducedMotion } from "@/lib/use-reduced-motion";
-import { CHAPTERS, type StoryBlock, type StoryChapter } from "@/lib/story-content";
+import { STORY, type StoryBlock } from "@/lib/story-content";
 
 const viewport = { once: true, margin: "-100px" } as const;
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -185,7 +184,8 @@ function Block({ block, ascend }: { block: StoryBlock; ascend: boolean }) {
           whileInView="visible"
           viewport={viewport}
         >
-          <dt className="font-heading text-brand-white text-[1.6rem] md:text-[2.2rem] tracking-[0.18em]">
+          {/* 見出しフォント（Bebas Neue）は大文字しか持たず "AscenDed" の大小が潰れるので、本文フォントで出す */}
+          <dt className="font-body font-semibold text-brand-white text-[1.6rem] md:text-[2.2rem] tracking-[0.06em]">
             <Line ascend={ascend}>{block.term}</Line>
           </dt>
           <dd className="font-body font-medium text-brand-red text-[1.1rem] md:text-[1.45rem] tracking-[0.08em]">
@@ -207,115 +207,21 @@ const chainStagger: Variants = {
 };
 
 /* ────────────────────────────────────────────────
-   1章
-   ──────────────────────────────────────────────── */
-function Chapter({ chapter }: { chapter: StoryChapter }) {
-  const ref = useRef<HTMLElement>(null);
-  const reduce = useHydratedReducedMotion();
-  const isStar = chapter.num === "02";
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const rotate = useTransform(scrollYProgress, [0, 1], [-40, 40]);
-
-  return (
-    <section
-      ref={ref}
-      className="relative"
-      aria-labelledby={`chapter-${chapter.num}`}
-    >
-      {/* 背景でゆっくり回る星（THE STAR の章のみ） */}
-      {isStar && (
-        <motion.div
-          aria-hidden="true"
-          className="pointer-events-none absolute -z-10 top-1/2 -translate-y-1/2
-                     right-[-18%] md:right-[-10%] w-[78vw] max-w-[560px] text-brand-white/[0.045]"
-          style={reduce ? undefined : { rotate }}
-        >
-          <StarMark className="w-full h-auto" />
-        </motion.div>
-      )}
-
-      {/* 章見出し */}
-      <motion.header
-        className="relative mb-10 md:mb-14"
-        variants={groupStagger}
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewport}
-      >
-        {/* 背面の大きな章番号 */}
-        <motion.span
-          className="pointer-events-none absolute -top-16 -left-2 md:-left-10 font-display
-                     leading-none select-none text-transparent"
-          style={{
-            fontSize: "clamp(6rem, 18vw, 13rem)",
-            WebkitTextStroke: "1px rgba(245,245,240,0.10)",
-          }}
-          variants={{
-            hidden: { opacity: 0, scale: 1.25, y: 24 },
-            visible: {
-              opacity: 1,
-              scale: 1,
-              y: 0,
-              transition: { duration: 0.9, ease: EASE },
-            },
-          }}
-          aria-hidden="true"
-        >
-          {chapter.num}
-        </motion.span>
-
-        <div className="relative flex items-center gap-4 mb-4">
-          <span className="font-heading text-brand-red text-sm tracking-[0.3em]">
-            {chapter.num}
-          </span>
-          <motion.span
-            className="h-px flex-1 bg-brand-gray origin-left"
-            variants={{
-              hidden: { scaleX: 0 },
-              visible: { scaleX: 1, transition: { duration: 0.8, ease: EASE } },
-            }}
-          />
-        </div>
-
-        <h2
-          id={`chapter-${chapter.num}`}
-          className="relative font-heading text-brand-white leading-none"
-          style={{ fontSize: "clamp(2rem, 5.5vw, 4rem)" }}
-        >
-          <Line>{chapter.en}</Line>
-        </h2>
-        <p className="relative mt-3 font-body text-brand-gray-light text-xs md:text-sm tracking-[0.35em]">
-          <Line>{chapter.ja}</Line>
-        </p>
-      </motion.header>
-
-      {/* 本文 */}
-      <div className="relative flex flex-col gap-9 md:gap-11">
-        {chapter.blocks.map((block, i) => (
-          <Block key={i} block={block} ascend={chapter.ascend ?? false} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/* ────────────────────────────────────────────────
    ページ本体
    ──────────────────────────────────────────────── */
-export default function StoryChapters() {
+export default function StoryBody() {
   return (
-    <div className="max-w-2xl mx-auto px-6 md:px-12 py-24 md:py-32 flex flex-col gap-28 md:gap-40">
-      {CHAPTERS.map((chapter) => (
-        <Chapter key={chapter.num} chapter={chapter} />
-      ))}
+    <div className="max-w-2xl mx-auto px-6 md:px-12 py-24 md:py-32 flex flex-col gap-20 md:gap-28">
+      {/* 本文。章立てせず1本の詩として流す */}
+      <div className="flex flex-col gap-9 md:gap-11">
+        {STORY.map((block, i) => (
+          <Block key={i} block={block} ascend={false} />
+        ))}
+      </div>
 
       {/* CTA */}
       <motion.div
-        className="flex flex-wrap items-center gap-6 -mt-10 md:-mt-16"
+        className="flex flex-wrap items-center gap-6"
         variants={groupStagger}
         initial="hidden"
         whileInView="visible"

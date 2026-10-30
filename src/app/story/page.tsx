@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import StoryHero from "@/components/sections/StoryHero";
-import StoryChapters from "@/components/sections/StoryChapters";
+import StoryBody from "@/components/sections/StoryBody";
 
 export const metadata: Metadata = {
   title: "OUR STORY",
   description:
-    "ASCENDED336 のブランドストーリー。一輪のセリの花言葉「貧相だけど高潔」から生まれたブランドの信条。",
+    "ASCENDED336 のブランドストーリー。セリの花言葉「貧しくても、高潔」から生まれたブランドの信条。",
 };
 
 export default function StoryPage() {
@@ -31,7 +31,7 @@ export default function StoryPage() {
       <StoryHero />
 
       {/* 本編 */}
-      <StoryChapters />
+      <StoryBody />
     </div>
   );
 }
