@@ -46,69 +46,21 @@ export type StoryBlock =
   | AccentBlock
   | DefineBlock;
 
-export interface StoryChapter {
-  num: string;
-  /** 英字見出し */
-  en: string;
-  /** 日本語見出し */
-  ja: string;
-  blocks: StoryBlock[];
-  /** 「上昇」の章だけ、登場の動きを大きく上へ */
-  ascend?: boolean;
-}
-
 /** ブランドの一行。ヒーローに掲げる */
-export const CREDO = "貧相でも、高潔であれ。";
+export const CREDO = "貧しくても、高潔。";
 
-export const CHAPTERS: StoryChapter[] = [
+/** CREDO の英訳。ヒーローで CREDO の直下に小さく添える */
+export const CREDO_EN = "Poor, but noble";
+
+/** 本文。章立てせず、1本の詩として上から順に出す。ブロックの切れ目が連の切れ目 */
+export const STORY: StoryBlock[] = [
+  { type: "verse", lines: ["このロゴのモチーフはセリの花", "小さくても素朴で、見落とされるような花。"] },
+  { type: "verse", lines: ["その花言葉は、貧しくても、高潔。", "自分の信念を持って立つ姿。"] },
+  { type: "quote", text: "自分の価値を、自分で上げろ" },
+  { type: "define", term: "AscenDed", meaning: "昇華、上昇" },
   {
-    num: "01",
-    en: "THE FLOWER",
-    ja: "一輪のセリ",
-    blocks: [
-      { type: "verse", lines: ["このロゴは", "一輪の「セリ」から生まれた。"] },
-      { type: "verse", lines: ["小さくて、素朴で、", "見落とされるような花。"] },
-      { type: "verse", lines: ["でもその花言葉は"] },
-      { type: "quote", text: "「貧相だけど高潔」" },
-      {
-        type: "verse",
-        lines: ["飾らなくても、", "媚びなくても、", "自分の信念を持って立つ姿。"],
-      },
-      { type: "accent", text: "それはパンクそのもの。" },
-    ],
+    type: "verse",
+    lines: ["過去も、痛みも、劣等感も、", "全部ひっくるめて", "自分の美学に変えていく。"],
   },
-  {
-    num: "02",
-    en: "THE STAR",
-    ja: "星",
-    blocks: [
-      { type: "verse", lines: ["セリのつぼみは星の形をしている。"] },
-      {
-        type: "chain",
-        lines: ["星は*尖っている*。", "*尖り*は*反骨*。", "*反骨*は*自由*。"],
-      },
-      { type: "verse", lines: ["その星を掲げる意味はひとつ。"] },
-      { type: "quote", text: "自分の価値を、自分で上げろ。" },
-    ],
-  },
-  {
-    num: "03",
-    en: "THE ASCENT",
-    ja: "昇華",
-    ascend: true,
-    blocks: [
-      { type: "define", term: "Ascended", meaning: "昇華・上昇" },
-      {
-        type: "verse",
-        lines: [
-          "過去も、痛みも、劣等感も、",
-          "全部ひっくるめて",
-          "自分の美学に変えていく。",
-        ],
-      },
-      { type: "verse", lines: ["それが Ascended336。"] },
-      { type: "verse", lines: ["派手じゃなくてもいい。"] },
-      { type: "quote", text: "でも、誇りだけは失うな。" },
-    ],
-  },
+  { type: "verse", lines: ["それがAscenDed336"] },
 ];

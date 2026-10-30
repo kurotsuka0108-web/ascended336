@@ -2,18 +2,14 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { CREDO } from "@/lib/story-content";
+import { CREDO, CREDO_EN } from "@/lib/story-content";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
  * ストーリーページのヒーロー。ブランドの一行（CREDO）を掲げる。
  *
- * 背景は実写のグラフィティ壁（wall-bg.png＝ロゴなし版）。その上に巨大な
- * ブラシ体のブランド名を screen 合成で重ね、壁に描かれた壁画のように見せる。
- *
- * 背景は壁・文字とも完全に固定。パララックスで別々に動かすと両者がズレて
- * 「壁に描かれている」関係が崩れるため、動かすなら必ず一体で動かすこと。
+ * 背景は実写のグラフィティ壁（wall-bg.png＝ロゴなし版）で、完全に固定。
  * 動くのは CREDO の初回登場のみ。
  */
 export default function StoryHero() {
@@ -51,29 +47,6 @@ export default function StoryHero() {
             "linear-gradient(to bottom, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0) 28%, rgba(10,10,10,0) 72%, rgba(10,10,10,0.9) 100%)",
         }}
       />
-
-      {/* 壁に描かれた文字。減光の「上」に置くこと（下だとビネットに潰されて見えない）。
-          screen 合成にすることで壁の凹凸が透け、ベタ塗りのステッカーに見えない */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 flex items-center justify-center
-                   opacity-[0.42] md:opacity-[0.62]"
-        style={{ mixBlendMode: "screen" }}
-      >
-        <span
-          className="font-display leading-none whitespace-nowrap select-none text-transparent"
-          style={{
-            // Dracutaz の "ASCENDED336" は 4.104em 幅。1行で画面に収めるには
-            // font-size ≦ 100vw / 4.104 ≒ 24.3vw が上限で、22vw なら画面幅の約90%に収まる。
-            // 下限を 22vw より大きい値にすると狭い画面でだけ下限が効いて見切れるので、
-            // ここは必ず 22vw を下回る値にしておくこと（旧 7rem は 509px 未満で破綻していた）。
-            fontSize: "clamp(4rem, 22vw, 20rem)",
-            WebkitTextStroke: "2px rgba(170,170,170,0.85)",
-          }}
-        >
-          ASCENDED336
-        </span>
-      </div>
 
       {/* テキスト直下だけ落とすスポット。壁の赤とラベルの赤が干渉するのを防ぐ */}
       <div
@@ -115,7 +88,7 @@ export default function StoryHero() {
             className="flex items-center justify-center gap-3 md:gap-5 whitespace-nowrap
                        font-body font-bold text-brand-white leading-[1.5] tracking-[0.08em]"
             style={{
-              // 狭い画面でも「高潔であ／れ。」のように割れないよう1行に収める
+              // 狭い画面でも「高／潔。」のように割れないよう1行に収める
               fontSize: "clamp(1.2rem, 4.6vw, 3.4rem)",
               textShadow: "0 2px 24px rgba(0,0,0,0.75)",
             }}
@@ -129,6 +102,19 @@ export default function StoryHero() {
             <span aria-hidden="true" className="text-brand-white/40">—</span>
           </motion.span>
         </span>
+
+        {/* CREDO の英訳 */}
+        <motion.p
+          lang="en"
+          className="-mt-3 md:-mt-5 font-body font-light italic text-xs md:text-base tracking-[0.2em] text-brand-cream/70"
+          style={{ textShadow: "0 1px 12px rgba(0,0,0,0.9)" }}
+          variants={{
+            hidden: { opacity: 0, y: 8 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
+          }}
+        >
+          {CREDO_EN}
+        </motion.p>
 
         <motion.span
           aria-hidden="true"
