@@ -56,9 +56,11 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
           </p>
         </div>
 
-        <p className="font-body text-sm text-brand-gray-light leading-relaxed whitespace-pre-line">
-          {product.description}
-        </p>
+        {product.description && (
+          <p className="font-body text-sm text-brand-gray-light leading-relaxed whitespace-pre-line">
+            {product.description}
+          </p>
+        )}
 
         {/* Color selector */}
         {colors.length > 0 && (

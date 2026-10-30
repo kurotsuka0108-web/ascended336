@@ -19,12 +19,16 @@ export async function generateMetadata({
     return { title: "商品が見つかりません" };
   }
 
+  // 説明文が空の商品もあるので、そのときは商品名から組み立てる
+  const description =
+    product.description.slice(0, 120) || `${product.name} | ASCENDED336`;
+
   return {
     title: product.name,
-    description: product.description.slice(0, 120),
+    description,
     openGraph: {
       title: product.name,
-      description: product.description.slice(0, 120),
+      description,
       images: product.images.length > 0 ? [product.images[0]] : undefined,
     },
   };

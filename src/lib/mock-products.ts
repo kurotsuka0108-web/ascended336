@@ -68,9 +68,7 @@ function whiteAndBlack(id: string, kinds: string[]): ProductColor[] {
  * 撮影済みの実在アイテム。デザインごとに1商品とし、色は詳細ページで選ぶ。
  * 旧URL（/products/graffiti-tee-white 等）は next.config.ts で ?color= 付きへ転送している。
  *
- * 説明文の最終行はストーリーページの原稿（lib/story-content.ts の STORY / CREDO）から
- * 一行を引く決まり。詳細ページ側が whitespace-pre-line なので \n がそのまま改行として出る。
- * 原稿を書き換えるときは、こちらの文言との対応も確認すること。
+ * 説明文は空（ユーザー指示で削除）。空なら詳細ページは説明欄ごと出さない。
  *
  * TODO(要確定): price と在庫数は仮値。
  */
@@ -84,8 +82,7 @@ const REAL_SEEDS: (MockSeed & {
     name: "GRAFFITI TAG TEE",
     price: PROVISIONAL_TEE_PRICE,
     category: "TOPS",
-    description:
-      "一筆で書き切ったタグを、そのまま胸に置いた。線の震えも、かすれも、消さずに残してある。飾らなくても、筆跡だけで立っていられる一枚。\n自分の価値を、自分で上げろ。",
+    description: "",
     colors: whiteAndBlack("graffiti-tee", ["front", "model"]),
     sizeChart: "tee",
   },
@@ -94,8 +91,7 @@ const REAL_SEEDS: (MockSeed & {
     name: "EMBLEM LOGO TEE",
     price: PROVISIONAL_TEE_PRICE,
     category: "TOPS",
-    description:
-      "セリのつぼみは、星の形をしている。その星とセリフ体のロゴを、胸元に静かに置いた。小さくても素朴で、見落とされるような花の、静かな誇り。\n貧しくても、高潔。",
+    description: "",
     colors: whiteAndBlack("emblem-tee", ["front", "model"]),
     sizeChart: "tee",
   },
@@ -104,8 +100,7 @@ const REAL_SEEDS: (MockSeed & {
     name: "GRAFFITI TAG LONG TEE",
     price: PROVISIONAL_LONG_TEE_PRICE,
     category: "TOPS",
-    description:
-      "半袖と同じタグを、袖の長い一枚に。過去も、痛みも、劣等感も、全部ひっくるめて自分の美学に変えていくための一枚。\nAscenDed ＝ 昇華、上昇。",
+    description: "",
     colors: whiteAndBlack("graffiti-long-tee", ["front"]),
     sizeChart: "long-tee",
   },
@@ -114,8 +109,7 @@ const REAL_SEEDS: (MockSeed & {
     name: "EMBLEM LOGO LONG TEE",
     price: PROVISIONAL_LONG_TEE_PRICE,
     category: "TOPS",
-    description:
-      "星とセリフ体のロゴを胸元に。長袖の落ち着いたシルエットが、品格と反骨を同時に成立させる。\nそれがAscenDed336。",
+    description: "",
     colors: whiteAndBlack("emblem-long-tee", ["front"]),
     sizeChart: "long-tee",
   },
