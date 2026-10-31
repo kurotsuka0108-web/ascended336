@@ -1,4 +1,10 @@
-import type { Product, ProductCategory, ProductVariation } from "@/types/product";
+import type {
+  Product,
+  ProductCategory,
+  ProductColor,
+  ProductVariation,
+  SizeChartKey,
+} from "@/types/product";
 
 /**
  * 開発用モック商品データ（約30点）。
@@ -20,10 +26,18 @@ const FREE_SIZE: ProductVariation[] = [{ id: "free", label: "FREE", stock: 8 }];
 const ONE_OF_A_KIND: ProductVariation[] = [{ id: "one", label: "ONE", stock: 1 }];
 
 /**
- * 実商品Tシャツの仮価格（税込）。正式な価格が決まり次第ここだけ変更する。
- * 既存モックの ANARCHY GRAPHIC TEE と同額に揃えてある。
+ * 実商品の仮価格（税込）。正式な価格が決まり次第ここだけ変更する。
+ * 半袖は既存モックの ANARCHY GRAPHIC TEE と同額に揃えてある。
  */
 const PROVISIONAL_TEE_PRICE = 8800;
+const PROVISIONAL_LONG_TEE_PRICE = 9900;
+
+/** 実商品のサイズ展開。在庫数は仮値 */
+const REAL_SIZES: ProductVariation[] = [
+  { id: "s", label: "S", stock: 5 },
+  { id: "m", label: "M", stock: 5 },
+  { id: "l", label: "L", stock: 5 },
+];
 
 type MockSeed = {
   name: string;
@@ -38,66 +52,66 @@ type MockSeed = {
   soldOut?: boolean;
 };
 
+/** 白・黒の2色展開。画像は public/products/<商品ID>/<色>-<種類>.jpg に置く */
+function whiteAndBlack(id: string, kinds: string[]): ProductColor[] {
+  return [
+    { id: "white", label: "WHITE", swatch: "#f5f5f0" },
+    { id: "black", label: "BLACK", swatch: "#0a0a0a" },
+  ].map((c) => ({
+    ...c,
+    images: kinds.map((kind) => `/products/${id}/${c.id}-${kind}.jpg`),
+  }));
+}
+
 /**
  * ── 実商品 ──
- * 撮影済みの実在アイテム。物撮り（3:4）とモデル着用の2点で構成する。
+ * 撮影済みの実在アイテム。デザインごとに1商品とし、色は詳細ページで選ぶ。
+ * 旧URL（/products/graffiti-tee-white 等）は next.config.ts で ?color= 付きへ転送している。
  *
- * 説明文はストーリーページの原稿（lib/story-content.ts の STORY / CREDO）から
- * モチーフと言い回しを引いている。最終行はその章の一行を置く決まりで、
- * 詳細ページ側が whitespace-pre-line なので \n がそのまま改行として出る。
- * 原稿を書き換えるときは、こちらの文言との対応も確認すること。
+ * 説明文は空（ユーザー指示で削除）。空なら詳細ページは説明欄ごと出さない。
  *
- * TODO(要確定): price と在庫数は仮値。サイズ展開が未定のため一旦 FREE で運用中。
- * サイズが決まったら variations を APPAREL_SIZES 等に差し替えること。
+ * TODO(要確定): price と在庫数は仮値。
  */
-const REAL_SEEDS: (MockSeed & { id: string })[] = [
+const REAL_SEEDS: (MockSeed & {
+  id: string;
+  colors: ProductColor[];
+  sizeChart: SizeChartKey;
+})[] = [
   {
-    id: "graffiti-tee-white",
-    name: "GRAFFITI TAG TEE / WHITE",
+    id: "graffiti-tee",
+    name: "GRAFFITI TAG TEE",
     price: PROVISIONAL_TEE_PRICE,
     category: "TOPS",
-    description:
-      "一筆で書き切ったタグを、そのまま胸に置いた。線の震えも、かすれも、消さずに残してある。飾らなくても、媚びなくても、筆跡だけで立っていられる一枚。\n星は尖っている。尖りは反骨、反骨は自由。",
-    images: [
-      "/products/graffiti-tee-white-front.jpg",
-      "/products/graffiti-tee-white-model.jpg",
-    ],
+    description: "",
+    colors: whiteAndBlack("graffiti-tee", ["front", "model"]),
+    sizeChart: "tee",
   },
   {
-    id: "emblem-tee-white",
-    name: "EMBLEM LOGO TEE / WHITE",
+    id: "emblem-tee",
+    name: "EMBLEM LOGO TEE",
     price: PROVISIONAL_TEE_PRICE,
     category: "TOPS",
-    description:
-      "セリのつぼみは、星の形をしている。その星とセリフ体のロゴを、胸元に静かに置いた。小さくて、素朴で、見落とされるような花。それでも花言葉は「貧相だけど高潔」。\n派手じゃなくてもいい。でも、誇りだけは失うな。",
-    images: [
-      "/products/emblem-tee-white-front.jpg",
-      "/products/emblem-tee-white-model.jpg",
-    ],
+    description: "",
+    colors: whiteAndBlack("emblem-tee", ["front", "model"]),
+    sizeChart: "tee",
   },
   {
-    id: "graffiti-tee-black",
-    name: "GRAFFITI TAG TEE / BLACK",
-    price: PROVISIONAL_TEE_PRICE,
+    id: "graffiti-long-tee",
+    name: "GRAFFITI TAG LONG TEE",
+    price: PROVISIONAL_LONG_TEE_PRICE,
     category: "TOPS",
-    description:
-      "黒地に白く抜いたタグ。夜の壁に残されたサインのように、筆跡だけが浮かび上がる。過去も、痛みも、劣等感も、全部ひっくるめて自分の美学に変えていくための一枚。\n自分の価値を、自分で上げろ。",
-    images: [
-      "/products/graffiti-tee-black-front.jpg",
-      "/products/graffiti-tee-black-model.jpg",
-    ],
+    description: "",
+    colors: whiteAndBlack("graffiti-long-tee", ["front"]),
+    sizeChart: "long-tee",
   },
   {
-    id: "emblem-tee-black",
-    name: "EMBLEM LOGO TEE / BLACK",
-    price: PROVISIONAL_TEE_PRICE,
+    id: "emblem-long-tee",
+    name: "EMBLEM LOGO LONG TEE",
+    price: PROVISIONAL_LONG_TEE_PRICE,
     category: "TOPS",
-    description:
-      "漆黒のボディに、白の星とセリフ体のロゴ。Ascended ＝ 昇華・上昇。掲げる意味はひとつ、自分の価値を自分で上げること。黒と白の対比が、品格と反骨を同時に成立させる。\n貧相でも、高潔であれ。",
-    images: [
-      "/products/emblem-tee-black-front.jpg",
-      "/products/emblem-tee-black-model.jpg",
-    ],
+    description: "",
+    colors: whiteAndBlack("emblem-long-tee", ["front"]),
+    sizeChart: "long-tee",
   },
 ];
 
@@ -177,13 +191,14 @@ function buildProduct(seed: MockSeed, id: string): Product {
  *
  * モック側の ID は「SEEDS 内の添字 + 1000」で固定する。実商品を先頭に足しても
  * 添字がずれないよう配列を分けてあるので、既存の /products/1000 等のURLは不変。
- * 実商品には内容が読み取れるスラッグを与える（例: /products/graffiti-tee-white）。
+ * 実商品には内容が読み取れるスラッグを与える（例: /products/graffiti-tee）。
  */
 export const MOCK_PRODUCTS: Product[] = [
-  ...REAL_SEEDS.map((seed) => ({
-    ...buildProduct(seed, seed.id),
-    // サイズ展開が未定のため一旦 FREE。決まり次第 APPAREL_SIZES 等へ差し替える。
-    variations: FREE_SIZE,
+  ...REAL_SEEDS.map(({ colors, sizeChart, ...seed }) => ({
+    ...buildProduct({ ...seed, images: colors[0].images }, seed.id),
+    variations: REAL_SIZES,
+    colors,
+    sizeChart,
   })),
   ...SEEDS.map((seed, i) => buildProduct(seed, String(1000 + i))),
 ];
