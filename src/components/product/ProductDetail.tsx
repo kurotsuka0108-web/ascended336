@@ -22,6 +22,9 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
   );
   const color = colors.find((c) => c.id === colorId);
   const images = color?.images ?? product.images;
+  // サイズは未選択から始める（勝手に M などを選んでおくと、選び忘れに気づけない）
+  const [sizeId, setSizeId] = useState<string>();
+  const size = product.variations.find((v) => v.id === sizeId);
 
   function selectColor(id: string) {
     setColorId(id);
@@ -103,23 +106,31 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
             <div className="flex items-center justify-between gap-4">
               <span className="font-heading text-[11px] tracking-[0.3em] text-brand-gray-light">
                 SIZE
+                {size && <span className="text-brand-white">&nbsp;—&nbsp;{size.label}</span>}
               </span>
               {product.sizeChart && <SizeGuide chart={product.sizeChart} />}
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div role="radiogroup" aria-label="サイズ" className="flex flex-wrap gap-3">
               {product.variations.map((v) => {
                 const soldOut = v.stock <= 0;
+                const selected = v.id === sizeId;
                 return (
                   <button
                     key={v.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
                     disabled={soldOut}
+                    onClick={() => setSizeId(v.id)}
                     className={`min-w-12 h-12 px-3 border font-heading text-xs
                                transition-colors duration-200
                                focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-red
                                ${
                                  soldOut
                                    ? "border-brand-gray text-brand-gray-light/40 line-through cursor-not-allowed"
-                                   : "border-brand-gray text-brand-gray-light hover:border-brand-white hover:text-brand-white"
+                                   : selected
+                                     ? "border-brand-white bg-brand-white text-brand-black"
+                                     : "border-brand-gray text-brand-gray-light hover:border-brand-white hover:text-brand-white"
                                }`}
                   >
                     {v.label}
