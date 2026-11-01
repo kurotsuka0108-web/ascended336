@@ -19,6 +19,13 @@ interface ProductGalleryProps {
  */
 export default function ProductGallery({ images, name, category }: ProductGalleryProps) {
   const [active, setActive] = useState(0);
+
+  // 色の切替などで画像セットが変わったら先頭に戻す（レンダー中に前回値と比べる React の定石）
+  const [prevImages, setPrevImages] = useState(images);
+  if (prevImages !== images) {
+    setPrevImages(images);
+    setActive(0);
+  }
   const hasImages = images.length > 0;
   const hasThumbs = images.length > 1;
 
@@ -36,7 +43,7 @@ export default function ProductGallery({ images, name, category }: ProductGaller
         {hasImages ? (
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
-              key={active}
+              key={images[active]}
               className="absolute inset-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

@@ -20,6 +20,21 @@ export interface ProductVariation {
   stock: number;
 }
 
+/** カラー展開。色ごとに画像を持ち、詳細ページで選ぶと画像が切り替わる */
+export interface ProductColor {
+  /** URL の ?color= に使う値（例: "white"） */
+  id: string;
+  /** 表示名（例: "WHITE"） */
+  label: string;
+  /** 色見本ボタンの塗り */
+  swatch: string;
+  /** この色の画像（先頭がメイン） */
+  images: string[];
+}
+
+/** サイズ表の種類。lib/size-charts.ts のキー */
+export type SizeChartKey = "tee" | "long-tee";
+
 export interface Product {
   /** BASE の item_id を文字列化したもの */
   id: string;
@@ -37,4 +52,8 @@ export interface Product {
   inStock: boolean;
   /** サイズなどのバリエーション */
   variations: ProductVariation[];
+  /** カラー展開。あれば images は先頭の色の画像と同じ */
+  colors?: ProductColor[];
+  /** サイズ表。あれば詳細ページに SIZE GUIDE を出す */
+  sizeChart?: SizeChartKey;
 }
