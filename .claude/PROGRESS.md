@@ -122,9 +122,9 @@ npx tsc --noEmit   # 型チェック
 - ヒーロー背景の元画像はユーザー提供。差し替え時は `public/hero-bg*.png` を置換。
 
 ## BASEトークンの状況
-- **API v2 のパーソナルアクセストークン（PAT）を使用**（2026-11-12 発行、スコープ `items.read`）。Vercel の `BASE_API_TOKEN`（Production / Preview）に設定済み。
+- **API v2 のパーソナルアクセストークン（PAT）を使用**（2026-11-12 発行、スコープ `items.read`。COMING SOON 判定のため `user.read` も付けて再発行予定）。Vercel の `BASE_API_TOKEN`（Production / Preview）に設定済み。
 - **有効期限：2027-02-10（発行から90日・最大）。期限前に BASE Developers → API v2 → PAT で再発行し、Vercel の値を差し替えること。** 切れると BASE の商品が出なくなり、サイト内の実商品4点（`lib/local-products.ts`）に戻る。
-- BASE で非公開の商品も本番に出し、**COMING SOON**（購入ボタン停止）にする。公開すれば最大1時間で通常表示に切り替わる。BASE は色ごとに別商品（例: `AscenDed336 – SYMBOL TEE BLACK`）なので、末尾の色名で1商品にまとめ、詳細ページの色ボタンで切り替える。一覧では色ごとに1枚ずつ並べる。
+- **ショップが非公開の間**（API `/user` の `able_to_business`、鍵にスコープ `user.read` が必要）と、BASE で非公開の商品は **COMING SOON**（購入ボタン停止）で出す。公開すれば最大1時間で通常表示に切り替わる。BASE は色ごとに別商品（例: `AscenDed336 – SYMBOL TEE BLACK`）なので、末尾の色名で1商品にまとめ、詳細ページの色ボタンで切り替える。一覧では色ごとに1枚ずつ並べる。
 - 商品説明は BASE に登録された文を使う（ユーザー指示）。
 
 ## スマホ（claude.ai/code）で続ける場合
