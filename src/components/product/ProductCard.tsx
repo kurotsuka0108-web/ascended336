@@ -4,7 +4,7 @@ import type { Product } from "@/types/product";
 
 type ProductCardProps = Pick<
   Product,
-  "id" | "name" | "price" | "category" | "images" | "inStock"
+  "id" | "name" | "price" | "category" | "images" | "inStock" | "href"
 >;
 
 export default function ProductCard({
@@ -14,12 +14,13 @@ export default function ProductCard({
   category,
   images,
   inStock,
+  href,
 }: ProductCardProps) {
   const mainImage = images[0];
 
   return (
     <Link
-      href={`/products/${id}`}
+      href={href ?? `/products/${id}`}
       className="group flex flex-col gap-3
                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red"
       aria-label={`${name} - ¥${price.toLocaleString()}`}

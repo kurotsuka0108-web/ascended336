@@ -38,6 +38,8 @@ export interface ProductColor {
   url?: string;
   /** この色の在庫の有無 */
   inStock?: boolean;
+  /** この色の商品説明。無ければ商品の description を使う */
+  description?: string;
 }
 
 /** サイズ表の種類。lib/size-charts.ts のキー */
@@ -66,4 +68,6 @@ export interface Product {
   sizeChart?: SizeChartKey;
   /** BASE の商品ページ。無ければ購入ボタンはショップのトップへ */
   url?: string;
+  /** 一覧のカードのリンク先。無ければ /products/<id> */
+  href?: string;
 }

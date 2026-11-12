@@ -131,6 +131,7 @@ function normalize(item: BaseItem): Product & { color?: ProductColor } {
       variations,
       url,
       inStock: item.stock > 0,
+      description: item.detail ?? "",
     },
   };
 }
@@ -201,11 +202,31 @@ async function getAllProducts(): Promise<Product[]> {
 }
 
 /**
- * 商品一覧を取得する。
+ * 一覧用に、色違いを1色ずつ別のカードに分ける。
+ * カードからは、その色が選ばれた状態の詳細ページへ飛ぶ。
+ */
+function splitByColor(products: Product[]): Product[] {
+  return products.flatMap((p) =>
+    p.colors && p.colors.length > 0
+      ? p.colors.map((c) => ({
+          ...p,
+          // key に使うので色ごとに一意にする
+          id: c.itemId ?? `${p.id}-${c.id}`,
+          name: `${p.name} ${c.label}`,
+          images: c.images,
+          inStock: c.inStock ?? p.inStock,
+          href: c.itemId ? `/products/${c.itemId}` : `/products/${p.id}?color=${c.id}`,
+        }))
+      : [p],
+  );
+}
+
+/**
+ * 商品一覧を取得する。色違いは1色ずつ別の商品として並べる。
  * @param category 絞り込みカテゴリー（"tops" など。未指定なら全件）
  */
 export async function getProducts(category?: string): Promise<Product[]> {
-  return filterByCategory(await getAllProducts(), category);
+  return splitByColor(filterByCategory(await getAllProducts(), category));
 }
 
 /**
@@ -234,7 +255,8 @@ export async function getRelatedProducts(
   product: Product,
   limit = 4,
 ): Promise<Product[]> {
-  const others = (await getProducts()).filter((p) => p.id !== product.id);
+  // 色違いは同じ商品なので、まとめた単位で自分を除く
+  const others = (await getAllProducts()).filter((p) => p.id !== product.id);
   const sameCategory = others.filter((p) => p.category === product.category);
   const rest = others.filter((p) => p.category !== product.category);
   return [...sameCategory, ...rest].slice(0, limit);

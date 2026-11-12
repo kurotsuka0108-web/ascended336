@@ -27,6 +27,7 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
   const variations = color?.variations ?? product.variations;
   const inStock = color?.inStock ?? product.inStock;
   const buyUrl = color?.url ?? product.url ?? SHOP_URL;
+  const description = color?.description ?? product.description;
   // サイズは未選択から始める（勝手に M などを選んでおくと、選び忘れに気づけない）
   const [sizeId, setSizeId] = useState<string>();
   const size = variations.find((v) => v.id === sizeId);
@@ -67,9 +68,9 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
           </p>
         </div>
 
-        {product.description && (
+        {description && (
           <p className="font-body text-sm text-brand-gray-light leading-relaxed whitespace-pre-line">
-            {product.description}
+            {description}
           </p>
         )}
 
