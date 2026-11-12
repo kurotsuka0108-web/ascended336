@@ -16,10 +16,9 @@ import { shopItemUrl } from "./shop";
  * - 鍵は BASE Developers で発行するパーソナルアクセストークン（スコープ items.read）。
  *   Vercel の環境変数 BASE_API_TOKEN に置く。有効期限があるので切れる前に差し替えること。
  * - 鍵が無い・取得に失敗した・表示できる商品が1つも無い場合は LOCAL_PRODUCTS を表示する。
- * - ショップ自体が非公開の間（able_to_business が false）と、BASE で非公開の商品は、
- *   COMING SOON として購入できない状態で出す（発売前の告知）。BASE で公開すれば、
- *   次の再取得（最大1時間）で通常の商品に切り替わる。
- *   ショップの公開状態の取得には鍵にスコープ user.read も要る。無ければ商品単位の公開状態だけで判断する。
+ * - BASE で販売開始前（sales_status が item_waiting_for_sale）か非公開の商品は、
+ *   COMING SOON として購入できない状態で出す（発売前の告知）。販売が始まれば、
+ *   次の再取得（最大1時間）で通常の商品に切り替わる。販売終了後の商品は SOLD OUT。
  *
  * 参考: https://apiv2.thebase.com/docs/
  */
@@ -96,13 +95,16 @@ interface BaseItem {
   price: number | null;
   stock: number;
   visible: boolean;
+  sales_status: "item_waiting_for_sale" | "item_now_on_sale" | "item_end_of_sale";
   images?: BaseImage[];
   variations?: BaseVariation[];
 }
 
 /** BASE の item をアプリの Product 型へ正規化する。色はまだまとめない */
-function normalize(item: BaseItem, shopOpen: boolean): Product & { color?: ProductColor } {
+function normalize(item: BaseItem): Product & { color?: ProductColor } {
   const { name, color } = splitName(item.name);
+  const comingSoon = !item.visible || item.sales_status === "item_waiting_for_sale";
+  const inStock = item.stock > 0 && item.sales_status !== "item_end_of_sale";
   const id = String(item.id);
   const images = (item.images ?? []).map((img) => img.url);
   const variations: ProductVariation[] = (item.variations ?? []).map((v) => ({
@@ -119,11 +121,11 @@ function normalize(item: BaseItem, shopOpen: boolean): Product & { color?: Produ
     price: item.price ?? 0,
     images,
     category: inferCategory(name),
-    inStock: item.stock > 0,
+    inStock,
     variations,
     sizeChart: inferSizeChart(name),
     url,
-    comingSoon: !shopOpen || !item.visible,
+    comingSoon,
     color: color && {
       id: color.label.toLowerCase(),
       label: color.label,
@@ -132,9 +134,9 @@ function normalize(item: BaseItem, shopOpen: boolean): Product & { color?: Produ
       itemId: id,
       variations,
       url,
-      inStock: item.stock > 0,
+      inStock,
       description: item.detail ?? "",
-      comingSoon: !shopOpen || !item.visible,
+      comingSoon,
     },
   };
 }
@@ -143,9 +145,9 @@ function normalize(item: BaseItem, shopOpen: boolean): Product & { color?: Produ
  * 色違いの商品を1つにまとめる。並びは BASE の表示順で、最初に出てきた色が既定の色。
  * まとめた商品の ID・写真・在庫・購入リンクは既定の色のものを使う。
  */
-function groupByColor(items: BaseItem[], shopOpen: boolean): Product[] {
+function groupByColor(items: BaseItem[]): Product[] {
   const products: Product[] = [];
-  for (const { color, ...product } of items.map((item) => normalize(item, shopOpen))) {
+  for (const { color, ...product } of items.map(normalize)) {
     const group = color && products.find((p) => p.name === product.name && p.colors);
     if (group && color) {
       // 同じ色が2つ登録されていたら、先に出てきたほうを使う
@@ -192,20 +194,6 @@ async function fetchAllItems(): Promise<BaseItem[] | null> {
   }
 }
 
-/**
- * ショップが公開中か。取れなければ公開中とみなす（商品単位の公開状態で判断する）。
- */
-async function fetchShopOpen(): Promise<boolean> {
-  if (!TOKEN) return true;
-  try {
-    const user = await fetchBase<{ able_to_business: boolean }>("/user");
-    return user?.able_to_business ?? true;
-  } catch (err) {
-    console.error("[base] shop status fetch error:", err);
-    return true;
-  }
-}
-
 /** カテゴリーで絞り込む（クエリ文字列 → 表示用カテゴリー）。 */
 function filterByCategory(products: Product[], category?: string): Product[] {
   if (!category || category.toUpperCase() === "ALL") return products;
@@ -215,8 +203,8 @@ function filterByCategory(products: Product[], category?: string): Product[] {
 
 /** 表示する商品の全件。BASE に出せる商品が無ければサイト内の実商品 */
 async function getAllProducts(): Promise<Product[]> {
-  const [items, shopOpen] = await Promise.all([fetchAllItems(), fetchShopOpen()]);
-  return items && items.length > 0 ? groupByColor(items, shopOpen) : LOCAL_PRODUCTS;
+  const items = await fetchAllItems();
+  return items && items.length > 0 ? groupByColor(items) : LOCAL_PRODUCTS;
 }
 
 /**
