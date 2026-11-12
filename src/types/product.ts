@@ -40,6 +40,8 @@ export interface ProductColor {
   inStock?: boolean;
   /** この色の商品説明。無ければ商品の description を使う */
   description?: string;
+  /** この色が BASE で非公開（発売前） */
+  comingSoon?: boolean;
 }
 
 /** サイズ表の種類。lib/size-charts.ts のキー */
@@ -70,4 +72,6 @@ export interface Product {
   url?: string;
   /** 一覧のカードのリンク先。無ければ /products/<id> */
   href?: string;
+  /** BASE で非公開の商品。COMING SOON と出し、購入ボタンを止める */
+  comingSoon?: boolean;
 }

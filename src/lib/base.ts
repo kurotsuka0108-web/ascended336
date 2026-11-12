@@ -16,8 +16,8 @@ import { shopItemUrl } from "./shop";
  * - 鍵は BASE Developers で発行するパーソナルアクセストークン（スコープ items.read）。
  *   Vercel の環境変数 BASE_API_TOKEN に置く。有効期限があるので切れる前に差し替えること。
  * - 鍵が無い・取得に失敗した・表示できる商品が1つも無い場合は LOCAL_PRODUCTS を表示する。
- * - 本番では BASE で「公開」の商品だけを出す。プレビュー・ローカルでは非公開の商品も出し、
- *   ショップ公開前に見え方を確認できるようにする。
+ * - BASE で非公開の商品も出し、COMING SOON として購入できない状態にする（発売前の告知）。
+ *   BASE で公開すれば、次の再取得（最大1時間）で通常の商品に切り替わる。
  *
  * 参考: https://apiv2.thebase.com/docs/
  */
@@ -31,7 +31,6 @@ const PAGE_SIZE = 100; // API の上限
 const TOKEN = process.env.BASE_API_TOKEN?.trim()
   .replace(/^Bearer\s+/i, "")
   .replace(/[\s\u200B-\u200D\u2060\uFEFF]/g, "");
-const PUBLIC_ONLY = process.env.VERCEL_ENV === "production";
 
 // ── カテゴリー推定（BASE のカテゴリー名と揃えるまでの簡易マッピング） ──
 function inferCategory(title: string): ProductCategory {
@@ -122,6 +121,7 @@ function normalize(item: BaseItem): Product & { color?: ProductColor } {
     variations,
     sizeChart: inferSizeChart(name),
     url,
+    comingSoon: !item.visible,
     color: color && {
       id: color.label.toLowerCase(),
       label: color.label,
@@ -132,6 +132,7 @@ function normalize(item: BaseItem): Product & { color?: ProductColor } {
       url,
       inStock: item.stock > 0,
       description: item.detail ?? "",
+      comingSoon: !item.visible,
     },
   };
 }
@@ -148,6 +149,8 @@ function groupByColor(items: BaseItem[]): Product[] {
       // 同じ色が2つ登録されていたら、先に出てきたほうを使う
       if (!group.colors!.some((c) => c.id === color.id)) group.colors!.push(color);
       group.inStock ||= color.inStock!;
+      // 1色でも公開されていれば、まとめた商品は COMING SOON にしない
+      group.comingSoon &&= color.comingSoon;
     } else {
       products.push(color ? { ...product, colors: [color] } : product);
     }
@@ -177,7 +180,6 @@ async function fetchAllItems(): Promise<BaseItem[] | null> {
     const items: BaseItem[] = [];
     for (let offset = 0; ; offset += PAGE_SIZE) {
       const query = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(offset) });
-      if (PUBLIC_ONLY) query.set("visible", "true");
       const page = (await fetchBase<BaseItem[]>(`/items?${query}`)) ?? [];
       items.push(...page);
       if (page.length < PAGE_SIZE) return items;
@@ -215,6 +217,7 @@ function splitByColor(products: Product[]): Product[] {
           name: `${p.name} ${c.label}`,
           images: c.images,
           inStock: c.inStock ?? p.inStock,
+          comingSoon: c.comingSoon ?? p.comingSoon,
           href: c.itemId ? `/products/${c.itemId}` : `/products/${p.id}?color=${c.id}`,
         }))
       : [p],

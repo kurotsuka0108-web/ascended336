@@ -28,6 +28,7 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
   const inStock = color?.inStock ?? product.inStock;
   const buyUrl = color?.url ?? product.url ?? SHOP_URL;
   const description = color?.description ?? product.description;
+  const comingSoon = color?.comingSoon ?? product.comingSoon;
   // サイズは未選択から始める（勝手に M などを選んでおくと、選び忘れに気づけない）
   const [sizeId, setSizeId] = useState<string>();
   const size = variations.find((v) => v.id === sizeId);
@@ -151,7 +152,14 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
         )}
 
         {/* BASE purchase button */}
-        {inStock ? (
+        {comingSoon ? (
+          <span
+            className="font-heading text-sm tracking-[0.35em] px-8 py-4 text-center
+                       border-2 border-brand-red text-brand-red cursor-not-allowed"
+          >
+            COMING SOON
+          </span>
+        ) : inStock ? (
           <a
             href={buyUrl}
             target="_blank"
