@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ProductGallery from "@/components/product/ProductGallery";
 import SizeGuide from "@/components/product/SizeGuide";
+import { SHOP_URL } from "@/lib/shop";
 import type { Product } from "@/types/product";
 
 interface ProductDetailProps {
@@ -144,7 +145,7 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
         {/* BASE purchase button */}
         {product.inStock ? (
           <a
-            href="https://base.shop"
+            href={product.url ?? SHOP_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="font-heading text-sm tracking-[0.35em] px-8 py-4 text-center

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { SHOP_URL } from "@/lib/shop";
 
 const navLinks = [
   { href: "/products", label: "SHOP" },
@@ -56,7 +57,7 @@ export default function Footer() {
               PURCHASE
             </span>
             <a
-              href="https://base.shop"
+              href={SHOP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="font-heading text-sm tracking-[0.25em] text-brand-red

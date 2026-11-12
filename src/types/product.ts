@@ -12,7 +12,7 @@ export type ProductCategory =
   | "ACCESSORIES";
 
 export interface ProductVariation {
-  /** BASE の variation_id（モックでは連番） */
+  /** バリエーションID（サイズ名の小文字。例: "m"） */
   id: string;
   /** サイズなどのラベル（例: "S", "M", "FREE"） */
   label: string;
@@ -36,7 +36,7 @@ export interface ProductColor {
 export type SizeChartKey = "tee" | "long-tee";
 
 export interface Product {
-  /** BASE の item_id を文字列化したもの */
+  /** BASE の商品IDを文字列化したもの（サイト内の実商品は "graffiti-tee" などのスラッグ） */
   id: string;
   /** 商品名 */
   name: string;
@@ -56,4 +56,6 @@ export interface Product {
   colors?: ProductColor[];
   /** サイズ表。あれば詳細ページに SIZE GUIDE を出す */
   sizeChart?: SizeChartKey;
+  /** BASE の商品ページ。無ければ購入ボタンはショップのトップへ */
+  url?: string;
 }
