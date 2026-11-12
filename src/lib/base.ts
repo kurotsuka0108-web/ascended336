@@ -26,7 +26,8 @@ const API_BASE = "https://apiv2.thebase.com/api";
 const REVALIDATE_SECONDS = 3600; // 1時間ごとに再取得（ISR）
 const PAGE_SIZE = 100; // API の上限
 
-const TOKEN = process.env.BASE_API_TOKEN;
+// 貼り付け時に混ざりやすい前後の空白・改行と、"Bearer " の付け忘れ・付けすぎを吸収する
+const TOKEN = process.env.BASE_API_TOKEN?.trim().replace(/^Bearer\s+/i, "");
 const PUBLIC_ONLY = process.env.VERCEL_ENV === "production";
 
 // ── カテゴリー推定（BASE のカテゴリー名と揃えるまでの簡易マッピング） ──
@@ -145,7 +146,8 @@ async function fetchBase<T>(path: string): Promise<T | null> {
     next: { revalidate: REVALIDATE_SECONDS },
   });
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`BASE ${path} → ${res.status}`);
+  // エラー本文は problem+json（type と title のみ。鍵は含まれない）
+  if (!res.ok) throw new Error(`BASE ${path} → ${res.status} ${await res.text()}`);
   return res.json();
 }
 
