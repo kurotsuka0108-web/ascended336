@@ -52,29 +52,29 @@ function inferSizeChart(title: string): SizeChartKey | undefined {
   return undefined;
 }
 
-// ── 色とサイズ ──
-// BASE のバリエーションは1軸なので、名前を「色 / サイズ」（例: "WHITE / M"）で
-// 登録してもらい、ここで2つに分ける。サイズだけの名前（"M"）なら色展開なし。
+// ── 色 ──
+// BASE では色ごとに別商品として登録している（例: "AscenDed336 – SYMBOL TEE BLACK"）。
+// 名前の末尾の色名を外した名前が同じ商品を1つにまとめ、詳細ページの色ボタンで切り替える。
+// 写真・在庫・購入リンクは色ごとに、その色の BASE 商品のものを使う。
 
-const SIZE_PATTERN = /^(XXS|XS|S|M|L|XL|XXL|XXXL|FREE|F|ONE)$/i;
-
-/** 色名 → 色見本の塗り。載っていない色はグレーで出す */
-const SWATCHES: [RegExp, string][] = [
-  [/(white|ホワイト|白)/i, "#f5f5f0"],
-  [/(black|ブラック|黒)/i, "#0a0a0a"],
-  [/(gr[ae]y|グレー|灰)/i, "#8a8a8a"],
-  [/(red|レッド|赤)/i, "#cc0000"],
-  [/(navy|ネイビー|紺)/i, "#1c2541"],
+/** 色名 → 色見本の塗り。ここに無い色名は色として扱わない（名前の一部とみなす） */
+const COLORS: { label: string; pattern: RegExp; swatch: string }[] = [
+  { label: "WHITE", pattern: /^(white|ホワイト|白)$/i, swatch: "#f5f5f0" },
+  { label: "BLACK", pattern: /^(black|ブラック|黒)$/i, swatch: "#0a0a0a" },
+  { label: "GRAY", pattern: /^(gr[ae]y|グレー|灰)$/i, swatch: "#8a8a8a" },
+  { label: "RED", pattern: /^(red|レッド|赤)$/i, swatch: "#cc0000" },
+  { label: "NAVY", pattern: /^(navy|ネイビー|紺)$/i, swatch: "#1c2541" },
 ];
 
-function splitVariation(name: string): { color?: string; size: string } {
-  const parts = name.split(/\s*[/／]\s*/).filter(Boolean);
-  if (parts.length >= 2) {
-    const size = parts[parts.length - 1];
-    return { color: parts.slice(0, -1).join(" / "), size };
-  }
-  // 区切りが無ければ、サイズなら色なし・それ以外は色だけ（サイズはフリー扱い）
-  return SIZE_PATTERN.test(name) ? { size: name } : { color: name, size: "FREE" };
+/** 名前からブランド名の前置きと末尾の色名を外す */
+function splitName(raw: string): { name: string; color?: (typeof COLORS)[number] } {
+  // 詳細ページではブランド名を別に出しているので、"AscenDed336 – " は省く
+  const name = raw.replace(/^ascended\s*336\s*[–—-]\s*/i, "").trim();
+  const words = name.split(/\s+/);
+  const color = COLORS.find((c) => c.pattern.test(words[words.length - 1]));
+  return color && words.length > 1
+    ? { name: words.slice(0, -1).join(" "), color }
+    : { name };
 }
 
 // ── BASE のレスポンス型（使う範囲のみ） ──
@@ -99,48 +99,59 @@ interface BaseItem {
   variations?: BaseVariation[];
 }
 
-/** BASE の item をアプリの Product 型へ正規化する。 */
-function normalize(item: BaseItem): Product {
+/** BASE の item をアプリの Product 型へ正規化する。色はまだまとめない */
+function normalize(item: BaseItem): Product & { color?: ProductColor } {
+  const { name, color } = splitName(item.name);
+  const id = String(item.id);
   const images = (item.images ?? []).map((img) => img.url);
-  const parsed = (item.variations ?? []).map((v) => ({
-    ...splitVariation(v.name?.trim() || "FREE"),
+  const variations: ProductVariation[] = (item.variations ?? []).map((v) => ({
+    id: String(v.id),
+    label: v.name?.trim() || "FREE",
     stock: v.stock,
   }));
-
-  // サイズは登場順に並べ、在庫は色をまたいで合計する
-  const variations: ProductVariation[] = [];
-  for (const v of parsed) {
-    const found = variations.find((s) => s.label === v.size);
-    if (found) found.stock += v.stock;
-    else variations.push({ id: v.size.toLowerCase(), label: v.size, stock: v.stock });
-  }
-
-  // 色ごとの画像は BASE の画像の並び順で割り当てる（2色・4枚なら 1〜2枚目が1色目）。
-  // 枚数が色数で割り切れなければ、どの色でも全画像を出す
-  const colorNames = [...new Set(parsed.flatMap((v) => (v.color ? [v.color] : [])))];
-  const perColor = colorNames.length > 0 && images.length % colorNames.length === 0
-    ? images.length / colorNames.length
-    : 0;
-  const colors: ProductColor[] = colorNames.map((name, i) => ({
-    id: name.toLowerCase().replace(/\s+/g, "-"),
-    label: name.toUpperCase(),
-    swatch: SWATCHES.find(([re]) => re.test(name))?.[1] ?? "#8a8a8a",
-    images: perColor > 0 ? images.slice(i * perColor, (i + 1) * perColor) : images,
-  }));
+  const url = shopItemUrl(id);
 
   return {
-    id: String(item.id),
-    name: item.name,
+    id,
+    name,
     description: item.detail ?? "",
     price: item.price ?? 0,
-    images: colors[0]?.images ?? images,
-    category: inferCategory(item.name),
+    images,
+    category: inferCategory(name),
     inStock: item.stock > 0,
     variations,
-    colors: colors.length > 0 ? colors : undefined,
-    sizeChart: inferSizeChart(item.name),
-    url: shopItemUrl(String(item.id)),
+    sizeChart: inferSizeChart(name),
+    url,
+    color: color && {
+      id: color.label.toLowerCase(),
+      label: color.label,
+      swatch: color.swatch,
+      images,
+      itemId: id,
+      variations,
+      url,
+      inStock: item.stock > 0,
+    },
   };
+}
+
+/**
+ * 色違いの商品を1つにまとめる。並びは BASE の表示順で、最初に出てきた色が既定の色。
+ * まとめた商品の ID・写真・在庫・購入リンクは既定の色のものを使う。
+ */
+function groupByColor(items: BaseItem[]): Product[] {
+  const products: Product[] = [];
+  for (const { color, ...product } of items.map(normalize)) {
+    const group = color && products.find((p) => p.name === product.name && p.colors);
+    if (group && color) {
+      // 同じ色が2つ登録されていたら、先に出てきたほうを使う
+      if (!group.colors!.some((c) => c.id === color.id)) group.colors!.push(color);
+      group.inStock ||= color.inStock!;
+    } else {
+      products.push(color ? { ...product, colors: [color] } : product);
+    }
+  }
+  return products;
 }
 
 async function fetchBase<T>(path: string): Promise<T | null> {
@@ -186,7 +197,7 @@ function filterByCategory(products: Product[], category?: string): Product[] {
 /** 表示する商品の全件。BASE に出せる商品が無ければサイト内の実商品 */
 async function getAllProducts(): Promise<Product[]> {
   const items = await fetchAllItems();
-  return items && items.length > 0 ? items.map(normalize) : LOCAL_PRODUCTS;
+  return items && items.length > 0 ? groupByColor(items) : LOCAL_PRODUCTS;
 }
 
 /**
@@ -199,20 +210,14 @@ export async function getProducts(category?: string): Promise<Product[]> {
 
 /**
  * 商品を1件取得する。見つからなければ null。
+ * 色違いをまとめているので、どの色の BASE 商品IDで来ても、まとめた商品を返す。
  * @param id BASE の商品ID（数字）、またはサイト内の実商品のID（"graffiti-tee" など）
  */
 export async function getProduct(id: string): Promise<Product | null> {
-  if (!/^\d+$/.test(id) || !TOKEN) {
-    return LOCAL_PRODUCTS.find((p) => p.id === id) ?? null;
-  }
-  try {
-    const item = await fetchBase<BaseItem>(`/items/${id}`);
-    if (!item || (PUBLIC_ONLY && !item.visible)) return null;
-    return normalize(item);
-  } catch (err) {
-    console.error("[base] item detail fetch error:", err);
-    return null;
-  }
+  const products = await getAllProducts();
+  return (
+    products.find((p) => p.id === id || p.colors?.some((c) => c.itemId === id)) ?? null
+  );
 }
 
 /**

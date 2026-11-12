@@ -30,6 +30,14 @@ export interface ProductColor {
   swatch: string;
   /** この色の画像（先頭がメイン） */
   images: string[];
+  /** BASE で色ごとに別商品のとき、その色の商品ID */
+  itemId?: string;
+  /** この色のサイズと在庫。無ければ商品の variations を使う */
+  variations?: ProductVariation[];
+  /** この色の BASE 商品ページ。無ければ商品の url を使う */
+  url?: string;
+  /** この色の在庫の有無 */
+  inStock?: boolean;
 }
 
 /** サイズ表の種類。lib/size-charts.ts のキー */
