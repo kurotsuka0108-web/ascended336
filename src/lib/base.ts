@@ -26,8 +26,11 @@ const API_BASE = "https://apiv2.thebase.com/api";
 const REVALIDATE_SECONDS = 3600; // 1時間ごとに再取得（ISR）
 const PAGE_SIZE = 100; // API の上限
 
-// 貼り付け時に混ざりやすい前後の空白・改行と、"Bearer " の付け忘れ・付けすぎを吸収する
-const TOKEN = process.env.BASE_API_TOKEN?.trim().replace(/^Bearer\s+/i, "");
+// 貼り付け時に混ざりやすい "Bearer " の付けすぎ・空白・改行・見えない文字（ゼロ幅スペース等）を除く。
+// 鍵の文字列に空白は含まれないので、途中に入ったものも全部消してよい
+const TOKEN = process.env.BASE_API_TOKEN?.trim()
+  .replace(/^Bearer\s+/i, "")
+  .replace(/[\s\u200B-\u200D\u2060\uFEFF]/g, "");
 const PUBLIC_ONLY = process.env.VERCEL_ENV === "production";
 
 // ── カテゴリー推定（BASE のカテゴリー名と揃えるまでの簡易マッピング） ──
@@ -147,7 +150,11 @@ async function fetchBase<T>(path: string): Promise<T | null> {
   });
   if (res.status === 404) return null;
   // エラー本文は problem+json（type と title のみ。鍵は含まれない）
-  if (!res.ok) throw new Error(`BASE ${path} → ${res.status} ${await res.text()}`);
+  // 鍵の取り違えを切り分けるため、401 のときだけ鍵の文字数を添える（中身は出さない）
+  if (!res.ok) {
+    const hint = res.status === 401 ? ` (token length: ${TOKEN?.length})` : "";
+    throw new Error(`BASE ${path} → ${res.status} ${await res.text()}${hint}`);
+  }
   return res.json();
 }
 
