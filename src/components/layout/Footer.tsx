@@ -4,7 +4,7 @@ import Image from "next/image";
 const navLinks = [
   { href: "/products", label: "SHOP" },
   { href: "/lookbook", label: "LOOKBOOK" },
-  { href: "/story", label: "STORY" },
+  { href: "/concept", label: "CONCEPT" },
 ];
 
 export default function Footer() {

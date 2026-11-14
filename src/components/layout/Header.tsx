@@ -18,7 +18,7 @@ const navLinks = [
     ],
   },
   { href: "/lookbook", label: "LOOKBOOK" },
-  { href: "/story", label: "STORY" },
+  { href: "/concept", label: "CONCEPT" },
 ];
 
 /* ── Cart icon ── */

@@ -121,6 +121,11 @@ npx tsc --noEmit   # 型チェック
 - `public/wall-bg.png` は旧ヒーロー背景。現在未使用だが**残置希望**（削除しない）。
 - ヒーロー背景の元画像はユーザー提供。差し替え時は `public/hero-bg*.png` を置換。
 
+## STORY → CONCEPT（2026-11-14）
+- `/story` を `/concept` に置き換え（`/story` は 308 で転送）。ナビ・トップのリンクも CONCEPT に。
+- 中身はグラフィティ壁の写真の上に、BASE ショップの ABOUT と同じコンセプト文（`lib/concept-content.ts`）。信条「貧相でも、高潔。」と旧ストーリー本文は削除（ユーザー指示）。
+- 上のストーリー関連の記述（StoryHero / StoryBody / story-content / StarMark）は過去の経緯。ファイルはもう無い。
+
 ## BASEトークンの状況
 - 未取得 → **実商品4点＋モック35点＝計39点**で表示中（想定どおり）。取得手順は `.env.example` 参照。
 
