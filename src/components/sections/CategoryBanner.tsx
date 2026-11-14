@@ -68,8 +68,9 @@ export default function CategoryBanner() {
                 </Link>
               ) : (
                 <div className={tileClass}>
-                  <div className={`placeholder-surface ${imageBoxClass}`}>
-                    <span className="font-heading text-[11px] leading-[1.6] tracking-[0.3em] text-center text-brand-white/35 select-none">
+                  {/* 黒地に赤字。枠線が無いと周りの黒に溶けて四角が見えなくなるため細い枠を付ける */}
+                  <div className={`bg-brand-black border border-brand-gray ${imageBoxClass}`}>
+                    <span className="font-heading text-[11px] leading-[1.6] tracking-[0.3em] text-center text-brand-red select-none">
                       COMING
                       <br />
                       SOON
