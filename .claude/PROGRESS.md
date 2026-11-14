@@ -144,3 +144,7 @@ npx tsc --noEmit   # 型チェック
 ## トップのカテゴリーと LOOKBOOK（2026-11-14）
 - `CategoryBanner.tsx`: TOPS だけ写真付きのリンク（`/products/graffiti-tee/black-front.jpg`）。BOTTOMS / OUTERWEAR / VINTAGE / ACCESSORIES は「COMING SOON」の札のみでリンクなし。商品が増えたら `image` を足せばリンクに切り替わる。
 - トップの LOOKBOOK 誘導の説明文（荒削りと品格が交差する…）を削除し、見出し LOOKBOOK だけに（ユーザー指示）。
+
+## トップの整理と BASE 連携の取り込み（2026-11-14）
+- トップから BEST SELLERS を削除（発売前で売れた実績がないため。ユーザー指示）。ヒーローの英語のキャッチコピー（REFINED CHAOS — ELEVATED REBELLION）も削除。
+- `base-api-v2` を `about-page` にマージ。見本商品（mock-products）は削除済みで、商品は BASE に登録された8点だけ。BASE から取れないときだけ `local-products.ts`（同じ実商品4点）を出す。
