@@ -105,7 +105,7 @@ export default function AboutHero() {
             <motion.p
               key={phrases.join("")}
               className="font-body font-light text-brand-cream/90 tracking-[0.04em]
-                         text-[1rem] leading-[1.9] md:text-[1.1rem] md:leading-[2.1]
+                         text-[0.94rem] leading-[1.9] md:text-[1.05rem] md:leading-[2.1]
                          [word-break:keep-all] [overflow-wrap:anywhere]"
               style={{ textShadow: "0 1px 12px rgba(0,0,0,0.9)" }}
               variants={rise}

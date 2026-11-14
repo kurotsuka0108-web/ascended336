@@ -124,7 +124,7 @@ npx tsc --noEmit   # 型チェック
 ## STORY → ABOUT（2026-11-14）
 - `/story` を `/about` に置き換え（`/story` は 308 で転送）。ナビ・トップのリンクも ABOUT に。一度 CONCEPT にしたが、BASE と名前をそろえるため ABOUT に変更（ユーザー指示）。
 - 中身はグラフィティ壁の写真の上に、BASE ショップの ABOUT と同じ文章（`lib/about-content.ts`）。
-- スマホ中心で組む: 本文 16px・行間 1.9（md 以上は 1.1rem・2.1）。改行は句の切れ目だけ（句の配列＋`<wbr>`＋keep-all）。信条「貧相でも、高潔。」と旧ストーリー本文は削除（ユーザー指示）。
+- スマホ中心で組む: 本文 15px・行間 1.9（md 以上は 1.05rem・2.1）。改行は句の切れ目だけ（句の配列＋`<wbr>`＋keep-all）。信条「貧相でも、高潔。」と旧ストーリー本文は削除（ユーザー指示）。
 - 上のストーリー関連の記述（StoryHero / StoryBody / story-content / StarMark）は過去の経緯。ファイルはもう無い。
 
 ## BASEトークンの状況
@@ -133,3 +133,7 @@ npx tsc --noEmit   # 型チェック
 ## スマホ（claude.ai/code）で続ける場合
 - GitHubリポジトリは同期済み。claude.ai/code をブラウザで開き本リポジトリを選択 → このPROGRESS.mdから再開。
 - クラウド側の変更はリポジトリにコミットされる。Macに戻ったら `git pull`。
+
+## トップのマーキーをロゴに（2026-11-14）
+- `Marquee.tsx` の流れる文字（BRITISH PUNK — …）をロゴ（星＋AscenDed336）の繰り返しに差し替え。
+- ロゴは周りの透明な余白を切り落とした `public/logo-mark-trim.png`（850×561、`logo-mark.png` から sharp の trim で作成）。
