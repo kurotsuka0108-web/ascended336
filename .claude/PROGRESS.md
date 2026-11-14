@@ -137,3 +137,7 @@ npx tsc --noEmit   # 型チェック
 ## トップのマーキーをロゴに（2026-11-14）
 - `Marquee.tsx` の流れる文字（BRITISH PUNK — …）をロゴマーク（ユリの星）だけの繰り返しに差し替え。ブランド名の文字は入れない（ユーザー指示）。
 - 画像は `public/logo-star.png`（394×388）。`logo-mark.png` から星の部分だけを sharp で切り出し、余白を trim したもの。
+
+## トップのカテゴリーと LOOKBOOK（2026-11-14）
+- `CategoryBanner.tsx`: TOPS だけ写真付きのリンク（`/products/graffiti-tee/black-front.jpg`）。BOTTOMS / OUTERWEAR / VINTAGE / ACCESSORIES は「COMING SOON」の札のみでリンクなし。商品が増えたら `image` を足せばリンクに切り替わる。
+- トップの LOOKBOOK 誘導の説明文（荒削りと品格が交差する…）を削除し、見出し LOOKBOOK だけに（ユーザー指示）。

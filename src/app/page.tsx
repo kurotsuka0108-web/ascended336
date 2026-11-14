@@ -29,7 +29,6 @@ export default async function Home() {
       <HorizontalGallery
         items={LOOKBOOK_TEASER}
         heading="LOOKBOOK"
-        subheading="荒削りと品格が交差する、AW2024 コレクション。スクロールで世界観を覗く。"
         ctaHref="/lookbook"
         ctaLabel="VIEW LOOKBOOK"
       />
