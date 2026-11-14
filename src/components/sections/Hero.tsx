@@ -84,13 +84,13 @@ export default function Hero() {
             SHOP NOW →
           </Link>
           <Link
-            href="/concept"
+            href="/about"
             className="font-heading text-xs tracking-[0.35em]
                        text-brand-cream/35 transition-colors duration-200
                        hover:text-brand-cream
                        focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-cream"
           >
-            CONCEPT
+            ABOUT
           </Link>
         </motion.div>
         </div>

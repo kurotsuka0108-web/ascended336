@@ -31,8 +31,8 @@ const nextConfig: NextConfig = {
           permanent: true,
         })),
       ),
-      // STORY ページは CONCEPT ページに置き換えた
-      { source: "/story", destination: "/concept", permanent: true },
+      // STORY ページは ABOUT ページに置き換えた
+      { source: "/story", destination: "/about", permanent: true },
     ];
   },
 };

@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import ConceptHero from "@/components/sections/ConceptHero";
+import AboutHero from "@/components/sections/AboutHero";
 
 export const metadata: Metadata = {
-  title: "CONCEPT",
+  title: "ABOUT",
   description:
-    "ASCENDED336 のコンセプト。UKパンクの反骨精神と、エモカルチャーの感情表現を融合したオルタナティブファッションブランド。",
+    "ASCENDED336 について。UKパンクの反骨精神と、エモカルチャーの感情表現を融合したオルタナティブファッションブランド。",
 };
 
-export default function ConceptPage() {
+export default function AboutPage() {
   return (
     <div className="min-h-screen bg-brand-black overflow-x-clip">
 
@@ -21,13 +21,13 @@ export default function ConceptPage() {
             className="font-display text-brand-white leading-none"
             style={{ fontSize: "clamp(3rem, 8vw, 7rem)" }}
           >
-            CONCEPT
+            ABOUT
           </h1>
         </div>
       </div>
 
-      {/* 壁の写真の上にコンセプト文 */}
-      <ConceptHero />
+      {/* 壁の写真の上にブランド紹介文 */}
+      <AboutHero />
     </div>
   );
 }

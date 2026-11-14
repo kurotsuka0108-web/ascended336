@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { motion, type Variants } from "framer-motion";
-import { CONCEPT, CONCEPT_TITLE } from "@/lib/concept-content";
+import { ABOUT_TEXT, ABOUT_TITLE } from "@/lib/about-content";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -18,16 +19,16 @@ const rise: Variants = {
 };
 
 /**
- * コンセプトページの本体。グラフィティ壁の写真の上にブランドのコンセプト文を載せる。
+ * ABOUT ページの本体。グラフィティ壁の写真の上にブランド紹介文を載せる。
  *
  * 背景は実写のグラフィティ壁（wall-bg.png＝ロゴなし版）で、完全に固定。
  * 動くのは文章の初回登場のみ。
  */
-export default function ConceptHero() {
+export default function AboutHero() {
   return (
     <div
       className="relative w-full min-h-[70vh] md:min-h-[80vh] flex items-center justify-center
-                 overflow-hidden border-y border-brand-gray-mid px-6 py-24 md:py-32"
+                 overflow-hidden border-y border-brand-gray-mid px-6 py-20 md:py-32"
     >
       {/* 実写のグラフィティ壁 */}
       <div className="absolute inset-0" aria-hidden="true">
@@ -82,7 +83,7 @@ export default function ConceptHero() {
           style={{ textShadow: "0 2px 24px rgba(0,0,0,0.75)" }}
           variants={rise}
         >
-          {CONCEPT_TITLE}
+          {ABOUT_TITLE}
         </motion.p>
 
         <motion.span
@@ -94,17 +95,30 @@ export default function ConceptHero() {
           }}
         />
 
-        {CONCEPT.map((text) => (
-          <motion.p
-            key={text}
-            className="font-body font-light text-brand-cream/85 leading-[2.1] tracking-[0.04em]
-                       text-[0.98rem] md:text-[1.1rem] [word-break:auto-phrase]"
-            style={{ textShadow: "0 1px 12px rgba(0,0,0,0.9)" }}
-            variants={rise}
-          >
-            {text}
-          </motion.p>
-        ))}
+        {/* スマホで読む前提で組む。
+            - 行間は 1.9（2 を超えると行どうしが離れて、段落の切れ目と見分けにくくなる）
+            - 段落の間は行間より大きく空けて、1段落＝1つの文のまとまりに見せる
+            - 改行は句の切れ目（<wbr>）だけ。keep-all で句の途中では折らず、
+              句そのものが画面幅より長いときだけ anywhere で折り返す */}
+        <motion.div className="flex flex-col gap-7 md:gap-8" variants={stagger}>
+          {ABOUT_TEXT.map((phrases) => (
+            <motion.p
+              key={phrases.join("")}
+              className="font-body font-light text-brand-cream/90 tracking-[0.04em]
+                         text-[1rem] leading-[1.9] md:text-[1.1rem] md:leading-[2.1]
+                         [word-break:keep-all] [overflow-wrap:anywhere]"
+              style={{ textShadow: "0 1px 12px rgba(0,0,0,0.9)" }}
+              variants={rise}
+            >
+              {phrases.map((phrase, i) => (
+                <Fragment key={phrase}>
+                  {i > 0 && <wbr />}
+                  {phrase}
+                </Fragment>
+              ))}
+            </motion.p>
+          ))}
+        </motion.div>
 
         <motion.div className="pt-6" variants={rise}>
           <Link
