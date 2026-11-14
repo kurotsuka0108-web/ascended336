@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 
-const LOGOS_PER_SET = 14; // 1セットで広い画面（〜2000px）の幅を埋められる数
+const LOGOS_PER_SET = 24; // 1セットで広い画面（〜2000px）の幅を埋められる数。マークが小さいので多めに並べる
 const SETS = 2; // 同じセットを2つ並べ、1セット分（-50%）動かしてループ＝継ぎ目なし
 
 /**
@@ -19,7 +19,7 @@ export default function Marquee() {
   return (
     <div
       aria-hidden
-      className="relative overflow-hidden border-y border-brand-gray bg-brand-black py-7 md:py-10"
+      className="relative overflow-hidden border-y border-brand-gray bg-brand-black py-2.5 md:py-4"
     >
       <motion.div
         className="flex w-max will-change-transform"
@@ -29,14 +29,14 @@ export default function Marquee() {
         }
       >
         {Array.from({ length: SETS * LOGOS_PER_SET }).map((_, i) => (
-          <div key={i} className="shrink-0 pr-12 md:pr-20">
+          <div key={i} className="shrink-0 pr-8 md:pr-12">
             <Image
               src="/logo-star.png"
               alt=""
               width={394}
               height={388}
-              sizes="(min-width: 768px) 66px, 49px"
-              className="h-12 md:h-16 w-auto opacity-80 select-none"
+              sizes="(min-width: 768px) 41px, 33px"
+              className="h-8 md:h-10 w-auto opacity-80 select-none"
               draggable={false}
             />
           </div>
