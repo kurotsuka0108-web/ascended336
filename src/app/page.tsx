@@ -13,9 +13,8 @@ const LOOKBOOK_TEASER: GalleryItem[] = Array.from({ length: 5 }, (_, i) => ({
 export default async function Home() {
   const products = await getProducts();
 
-  // 注目商品（モック/実データの先頭から抽出）
+  // 新着（BASE の商品一覧の先頭から）
   const newArrivals = products.slice(0, 4);
-  const bestSellers = products.slice(4, 8);
 
   return (
     <>
@@ -23,13 +22,11 @@ export default async function Home() {
       <CategoryBanner />
       <FeaturedProducts title="NEW ARRIVALS" products={newArrivals} />
       <Marquee />
-      <FeaturedProducts title="BEST SELLERS" products={bestSellers} />
 
       {/* LOOKBOOK 誘導（水平スクロール） */}
       <HorizontalGallery
         items={LOOKBOOK_TEASER}
         heading="LOOKBOOK"
-        subheading="荒削りと品格が交差する、AW2024 コレクション。スクロールで世界観を覗く。"
         ctaHref="/lookbook"
         ctaLabel="VIEW LOOKBOOK"
       />

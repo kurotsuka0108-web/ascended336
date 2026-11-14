@@ -55,17 +55,8 @@ export default function Hero() {
         className="relative flex flex-col justify-end px-6 md:px-12 pt-24 pb-16 min-h-[100svh]"
         style={{ zIndex: 3 }}
       >
-        {/* ── Tagline + CTA（下部・左寄せ） ── */}
+        {/* ── CTA（下部・左寄せ） ── */}
         <div className="flex flex-col items-start gap-6">
-          <motion.p
-            className="font-heading text-[10px] md:text-xs tracking-[0.5em] text-brand-cream/55"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-          >
-            REFINED&nbsp;CHAOS&nbsp;&nbsp;—&nbsp;&nbsp;ELEVATED&nbsp;REBELLION
-          </motion.p>
-
           <motion.div
             className="flex items-center gap-6"
             initial={{ opacity: 0, y: 14 }}
@@ -84,13 +75,13 @@ export default function Hero() {
             SHOP NOW →
           </Link>
           <Link
-            href="/story"
+            href="/about"
             className="font-heading text-xs tracking-[0.35em]
                        text-brand-cream/35 transition-colors duration-200
                        hover:text-brand-cream
                        focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-cream"
           >
-            OUR STORY
+            ABOUT
           </Link>
         </motion.div>
         </div>

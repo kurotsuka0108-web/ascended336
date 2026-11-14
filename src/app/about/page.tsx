@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import StoryHero from "@/components/sections/StoryHero";
-import StoryBody from "@/components/sections/StoryBody";
+import AboutHero from "@/components/sections/AboutHero";
 
 export const metadata: Metadata = {
-  title: "OUR STORY",
+  title: "ABOUT",
   description:
-    "ASCENDED336 のブランドストーリー。セリの花言葉「貧しくても、高潔」から生まれたブランドの信条。",
+    "ASCENDED336 について。UKパンクの反骨精神と、エモカルチャーの感情表現を融合したオルタナティブファッションブランド。",
 };
 
-export default function StoryPage() {
+export default function AboutPage() {
   return (
     <div className="min-h-screen bg-brand-black overflow-x-clip">
 
@@ -22,16 +21,13 @@ export default function StoryPage() {
             className="font-display text-brand-white leading-none"
             style={{ fontSize: "clamp(3rem, 8vw, 7rem)" }}
           >
-            OUR STORY
+            ABOUT
           </h1>
         </div>
       </div>
 
-      {/* ブランドの一行 */}
-      <StoryHero />
-
-      {/* 本編 */}
-      <StoryBody />
+      {/* 壁の写真の上にブランド紹介文 */}
+      <AboutHero />
     </div>
   );
 }

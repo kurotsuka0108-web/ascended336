@@ -1,10 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
+import { SHOP_URL } from "@/lib/shop";
 
 const navLinks = [
   { href: "/products", label: "SHOP" },
   { href: "/lookbook", label: "LOOKBOOK" },
-  { href: "/story", label: "STORY" },
+  { href: "/about", label: "ABOUT" },
 ];
 
 export default function Footer() {
@@ -14,7 +15,7 @@ export default function Footer() {
       {/* ── Main row ── */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-12 flex flex-col md:flex-row justify-between gap-10">
 
-        {/* Logo + tagline */}
+        {/* Logo */}
         <div className="flex flex-col gap-4">
           <Link href="/" aria-label="ASCENDED336 - ホームへ" className="hover:opacity-75 transition-opacity duration-200 inline-block">
             <Image
@@ -25,10 +26,6 @@ export default function Footer() {
               className="h-14 w-auto object-contain"
             />
           </Link>
-          <p className="font-body text-xs text-brand-gray-light leading-relaxed max-w-[22ch]">
-            British punk fashion.<br />
-            Refined chaos, elevated rebellion.
-          </p>
         </div>
 
         {/* Nav */}
@@ -56,7 +53,7 @@ export default function Footer() {
               PURCHASE
             </span>
             <a
-              href="https://base.shop"
+              href={SHOP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="font-heading text-sm tracking-[0.25em] text-brand-red

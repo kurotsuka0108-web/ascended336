@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { SHOP_URL } from "@/lib/shop";
 
 const navLinks = [
   {
@@ -18,7 +19,7 @@ const navLinks = [
     ],
   },
   { href: "/lookbook", label: "LOOKBOOK" },
-  { href: "/story", label: "STORY" },
+  { href: "/about", label: "ABOUT" },
 ];
 
 /* ── Cart icon ── */
@@ -134,7 +135,7 @@ export default function Header() {
           <div className="flex items-center gap-4">
             {/* Cart → BASE store */}
             <a
-              href="https://base.shop"
+              href={SHOP_URL}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="カートを開く（BASE）"
@@ -213,7 +214,7 @@ export default function Header() {
 
             {/* Mobile cart link */}
             <motion.a
-              href="https://base.shop"
+              href={SHOP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="font-heading text-sm tracking-[0.3em] text-brand-red mt-4

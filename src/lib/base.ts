@@ -1,30 +1,39 @@
 import "server-only";
-import type { Product, ProductCategory, ProductVariation } from "@/types/product";
-import { MOCK_PRODUCTS } from "./mock-products";
+import type {
+  Product,
+  ProductCategory,
+  ProductColor,
+  ProductVariation,
+} from "@/types/product";
+import { PRESETS, parseSizeChart, type SizeChart, type SizeChartShape } from "./size-charts";
+import { LOCAL_PRODUCTS } from "./local-products";
+import { shopItemUrl } from "./shop";
 
 /**
- * BASE API クライアント。
+ * BASE API v2 クライアント。
  *
- * - サーバーサイド専用（"server-only"）。秘密情報をクライアントに渡さない。
- * - 環境変数（BASE_CLIENT_ID / BASE_CLIENT_SECRET / BASE_REFRESH_TOKEN）が
- *   未設定のときは自動でモックデータにフォールバックする。
- * - トークンを .env.local / Vercel に設定するだけで本番連携に切り替わる。
+ * - サーバーサイド専用（"server-only"）。鍵をクライアントに渡さない。
+ * - 鍵は BASE Developers で発行するパーソナルアクセストークン（スコープ items.read）。
+ *   Vercel の環境変数 BASE_API_TOKEN に置く。有効期限があるので切れる前に差し替えること。
+ * - 鍵が無い・取得に失敗した・表示できる商品が1つも無い場合は LOCAL_PRODUCTS を表示する。
+ * - BASE で販売開始前（sales_status が item_waiting_for_sale）か非公開の商品は、
+ *   COMING SOON として購入できない状態で出す（発売前の告知）。販売が始まれば、
+ *   次の再取得（最大1時間）で通常の商品に切り替わる。販売終了後の商品は SOLD OUT。
  *
- * 参考: https://docs.thebase.in/docs/api/
+ * 参考: https://apiv2.thebase.com/docs/
  */
 
-const API_BASE = "https://api.thebase.in/1";
+const API_BASE = "https://apiv2.thebase.com/api";
 const REVALIDATE_SECONDS = 3600; // 1時間ごとに再取得（ISR）
+const PAGE_SIZE = 100; // API の上限
 
-const CLIENT_ID = process.env.BASE_CLIENT_ID;
-const CLIENT_SECRET = process.env.BASE_CLIENT_SECRET;
-const REFRESH_TOKEN = process.env.BASE_REFRESH_TOKEN;
+// 貼り付け時に混ざりやすい "Bearer " の付けすぎ・空白・改行・見えない文字（ゼロ幅スペース等）を除く。
+// 鍵の文字列に空白は含まれないので、途中に入ったものも全部消してよい
+const TOKEN = process.env.BASE_API_TOKEN?.trim()
+  .replace(/^Bearer\s+/i, "")
+  .replace(/[\s\u200B-\u200D\u2060\uFEFF]/g, "");
 
-/** トークン一式が揃っているか。揃っていなければモックを使う。 */
-const hasCredentials = Boolean(CLIENT_ID && CLIENT_SECRET && REFRESH_TOKEN);
-
-// ── カテゴリー推定（BASE 標準 item にカテゴリー項目が無いため簡易マッピング） ──
-// 本番では BASE のカテゴリーAPI（/1/categories）連携に差し替え可能。
+// ── カテゴリー推定（BASE のカテゴリー名と揃えるまでの簡易マッピング） ──
 function inferCategory(title: string): ProductCategory {
   const t = title.toLowerCase();
   if (/(vintage|used|secondhand|archive|古着)/.test(t)) return "VINTAGE";
@@ -35,95 +44,163 @@ function inferCategory(title: string): ProductCategory {
   return "TOPS";
 }
 
-// ── BASE のレスポンス型（必要な範囲のみ） ──
+/** 商品名から形（図の半袖・長袖）を決める。Tシャツ以外は undefined */
+function inferShape(title: string): SizeChartShape | undefined {
+  const t = title.toLowerCase();
+  if (/(long|ロング|長袖)/.test(t)) return "long-tee";
+  if (/(tee|t-shirt|tシャツ|半袖)/.test(t)) return "tee";
+  return undefined;
+}
+
+/**
+ * サイズ表を作る。商品説明の【SIZE CHART】を優先し、読めなければ形ごとの予備（PRESETS）。
+ * どちらも無い（Tシャツ以外で欄も無い）ときは SIZE GUIDE を出さない。
+ */
+function buildSizeChart(name: string, detail: string): SizeChart | undefined {
+  const shape = inferShape(name);
+  const parsed = parseSizeChart(detail);
+  if (parsed) return { title: shape ? PRESETS[shape].title : name, shape, ...parsed };
+  return shape && PRESETS[shape];
+}
+
+// ── 色 ──
+// BASE では色ごとに別商品として登録している（例: "AscenDed336 – SYMBOL TEE BLACK"）。
+// 名前の末尾の色名を外した名前が同じ商品を1つにまとめ、詳細ページの色ボタンで切り替える。
+// 写真・在庫・購入リンクは色ごとに、その色の BASE 商品のものを使う。
+
+/** 色名 → 色見本の塗り。ここに無い色名は色として扱わない（名前の一部とみなす） */
+const COLORS: { label: string; pattern: RegExp; swatch: string }[] = [
+  { label: "WHITE", pattern: /^(white|ホワイト|白)$/i, swatch: "#f5f5f0" },
+  { label: "BLACK", pattern: /^(black|ブラック|黒)$/i, swatch: "#0a0a0a" },
+  { label: "GRAY", pattern: /^(gr[ae]y|グレー|灰)$/i, swatch: "#8a8a8a" },
+  { label: "RED", pattern: /^(red|レッド|赤)$/i, swatch: "#cc0000" },
+  { label: "NAVY", pattern: /^(navy|ネイビー|紺)$/i, swatch: "#1c2541" },
+];
+
+/** 名前からブランド名の前置きと末尾の色名を外す */
+function splitName(raw: string): { name: string; color?: (typeof COLORS)[number] } {
+  // 詳細ページではブランド名を別に出しているので、"AscenDed336 – " は省く
+  const name = raw.replace(/^ascended\s*336\s*[–—-]\s*/i, "").trim();
+  const words = name.split(/\s+/);
+  const color = COLORS.find((c) => c.pattern.test(words[words.length - 1]));
+  return color && words.length > 1
+    ? { name: words.slice(0, -1).join(" "), color }
+    : { name };
+}
+
+// ── BASE のレスポンス型（使う範囲のみ） ──
+interface BaseImage {
+  url: string;
+}
+
 interface BaseVariation {
-  variation_id: number;
-  variation: string | null;
+  id: number;
+  name?: string | null;
   stock: number;
 }
 
 interface BaseItem {
-  item_id: number;
-  title: string;
-  detail: string;
-  price: number;
+  id: number;
+  name: string;
+  detail: string | null;
+  price: number | null;
   stock: number;
-  visible: number;
-  img1_origin?: string;
-  img2_origin?: string;
-  img3_origin?: string;
-  img4_origin?: string;
-  img5_origin?: string;
+  visible: boolean;
+  sales_status: "item_waiting_for_sale" | "item_now_on_sale" | "item_end_of_sale";
+  images?: BaseImage[];
   variations?: BaseVariation[];
 }
 
-interface BaseItemsResponse {
-  items: BaseItem[];
-}
-
-interface BaseTokenResponse {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-}
-
-/** BASE の item をアプリの Product 型へ正規化する。 */
-function normalize(item: BaseItem): Product {
-  const images = [
-    item.img1_origin,
-    item.img2_origin,
-    item.img3_origin,
-    item.img4_origin,
-    item.img5_origin,
-  ].filter((url): url is string => Boolean(url));
-
+/** BASE の item をアプリの Product 型へ正規化する。色はまだまとめない */
+function normalize(item: BaseItem): Product & { color?: ProductColor } {
+  const { name, color } = splitName(item.name);
+  const comingSoon = !item.visible || item.sales_status === "item_waiting_for_sale";
+  const inStock = item.stock > 0 && item.sales_status !== "item_end_of_sale";
+  const id = String(item.id);
+  const images = (item.images ?? []).map((img) => img.url);
   const variations: ProductVariation[] = (item.variations ?? []).map((v) => ({
-    id: String(v.variation_id),
-    label: v.variation ?? "FREE",
+    id: String(v.id),
+    label: v.name?.trim() || "FREE",
     stock: v.stock,
   }));
+  const url = shopItemUrl(id);
 
   return {
-    id: String(item.item_id),
-    name: item.title,
-    description: item.detail,
-    price: item.price,
+    id,
+    name,
+    description: item.detail ?? "",
+    price: item.price ?? 0,
     images,
-    category: inferCategory(item.title),
-    inStock: item.stock > 0,
+    category: inferCategory(name),
+    inStock,
     variations,
+    sizeChart: buildSizeChart(name, item.detail ?? ""),
+    url,
+    comingSoon,
+    color: color && {
+      id: color.label.toLowerCase(),
+      label: color.label,
+      swatch: color.swatch,
+      images,
+      itemId: id,
+      variations,
+      url,
+      inStock,
+      description: item.detail ?? "",
+      comingSoon,
+    },
   };
 }
 
 /**
- * refresh_token を使って access_token を取得する。
- * access_token は短命（約1時間）なので毎リクエスト前に更新する。
+ * 色違いの商品を1つにまとめる。並びは BASE の表示順で、最初に出てきた色が既定の色。
+ * まとめた商品の ID・写真・在庫・購入リンクは既定の色のものを使う。
  */
-async function getAccessToken(): Promise<string | null> {
-  try {
-    const body = new URLSearchParams({
-      grant_type: "refresh_token",
-      client_id: CLIENT_ID!,
-      client_secret: CLIENT_SECRET!,
-      refresh_token: REFRESH_TOKEN!,
-    });
-
-    const res = await fetch(`${API_BASE}/oauth/token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      console.error("[base] token refresh failed:", res.status);
-      return null;
+function groupByColor(items: BaseItem[]): Product[] {
+  const products: Product[] = [];
+  for (const { color, ...product } of items.map(normalize)) {
+    const group = color && products.find((p) => p.name === product.name && p.colors);
+    if (group && color) {
+      // 同じ色が2つ登録されていたら、先に出てきたほうを使う
+      if (!group.colors!.some((c) => c.id === color.id)) group.colors!.push(color);
+      group.inStock ||= color.inStock!;
+      // 1色でも公開されていれば、まとめた商品は COMING SOON にしない
+      group.comingSoon &&= color.comingSoon;
+    } else {
+      products.push(color ? { ...product, colors: [color] } : product);
     }
+  }
+  return products;
+}
 
-    const data: BaseTokenResponse = await res.json();
-    return data.access_token;
+async function fetchBase<T>(path: string): Promise<T | null> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { Authorization: `Bearer ${TOKEN}` },
+    next: { revalidate: REVALIDATE_SECONDS },
+  });
+  if (res.status === 404) return null;
+  // エラー本文は problem+json（type と title のみ。鍵は含まれない）
+  // 鍵の取り違えを切り分けるため、401 のときだけ鍵の文字数を添える（中身は出さない）
+  if (!res.ok) {
+    const hint = res.status === 401 ? ` (token length: ${TOKEN?.length})` : "";
+    throw new Error(`BASE ${path} → ${res.status} ${await res.text()}${hint}`);
+  }
+  return res.json();
+}
+
+/** BASE の商品を全件取得する。鍵が無い・失敗したら null */
+async function fetchAllItems(): Promise<BaseItem[] | null> {
+  if (!TOKEN) return null;
+  try {
+    const items: BaseItem[] = [];
+    for (let offset = 0; ; offset += PAGE_SIZE) {
+      const query = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(offset) });
+      const page = (await fetchBase<BaseItem[]>(`/items?${query}`)) ?? [];
+      items.push(...page);
+      if (page.length < PAGE_SIZE) return items;
+    }
   } catch (err) {
-    console.error("[base] token refresh error:", err);
+    console.error("[base] items fetch error:", err);
     return null;
   }
 }
@@ -135,71 +212,51 @@ function filterByCategory(products: Product[], category?: string): Product[] {
   return products.filter((p) => p.category === target);
 }
 
+/** 表示する商品の全件。BASE に出せる商品が無ければサイト内の実商品 */
+async function getAllProducts(): Promise<Product[]> {
+  const items = await fetchAllItems();
+  return items && items.length > 0 ? groupByColor(items) : LOCAL_PRODUCTS;
+}
+
 /**
- * 商品一覧を取得する。
+ * 一覧用に、色違いを1色ずつ別のカードに分ける。
+ * カードからは、その色が選ばれた状態の詳細ページへ飛ぶ。
+ */
+function splitByColor(products: Product[]): Product[] {
+  return products.flatMap((p) =>
+    p.colors && p.colors.length > 0
+      ? p.colors.map((c) => ({
+          ...p,
+          // key に使うので色ごとに一意にする
+          id: c.itemId ?? `${p.id}-${c.id}`,
+          name: `${p.name} ${c.label}`,
+          images: c.images,
+          inStock: c.inStock ?? p.inStock,
+          comingSoon: c.comingSoon ?? p.comingSoon,
+          href: c.itemId ? `/products/${c.itemId}` : `/products/${p.id}?color=${c.id}`,
+        }))
+      : [p],
+  );
+}
+
+/**
+ * 商品一覧を取得する。色違いは1色ずつ別の商品として並べる。
  * @param category 絞り込みカテゴリー（"tops" など。未指定なら全件）
  */
 export async function getProducts(category?: string): Promise<Product[]> {
-  if (!hasCredentials) {
-    return filterByCategory(MOCK_PRODUCTS, category);
-  }
-
-  const token = await getAccessToken();
-  if (!token) return filterByCategory(MOCK_PRODUCTS, category);
-
-  try {
-    const res = await fetch(`${API_BASE}/items?limit=100`, {
-      headers: { Authorization: `Bearer ${token}` },
-      next: { revalidate: REVALIDATE_SECONDS },
-    });
-
-    if (!res.ok) {
-      console.error("[base] items fetch failed:", res.status);
-      return filterByCategory(MOCK_PRODUCTS, category);
-    }
-
-    const data: BaseItemsResponse = await res.json();
-    const products = data.items
-      .filter((item) => item.visible === 1)
-      .map(normalize);
-
-    return filterByCategory(products, category);
-  } catch (err) {
-    console.error("[base] items fetch error:", err);
-    return filterByCategory(MOCK_PRODUCTS, category);
-  }
+  return splitByColor(filterByCategory(await getAllProducts(), category));
 }
 
 /**
  * 商品を1件取得する。見つからなければ null。
- * @param id 商品ID（item_id）
+ * 色違いをまとめているので、どの色の BASE 商品IDで来ても、まとめた商品を返す。
+ * @param id BASE の商品ID（数字）、またはサイト内の実商品のID（"graffiti-tee" など）
  */
 export async function getProduct(id: string): Promise<Product | null> {
-  if (!hasCredentials) {
-    return MOCK_PRODUCTS.find((p) => p.id === id) ?? null;
-  }
-
-  const token = await getAccessToken();
-  if (!token) return MOCK_PRODUCTS.find((p) => p.id === id) ?? null;
-
-  try {
-    const res = await fetch(`${API_BASE}/items/detail/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-      next: { revalidate: REVALIDATE_SECONDS },
-    });
-
-    if (!res.ok) {
-      if (res.status === 404) return null;
-      console.error("[base] item detail fetch failed:", res.status);
-      return MOCK_PRODUCTS.find((p) => p.id === id) ?? null;
-    }
-
-    const data: { item: BaseItem } = await res.json();
-    return normalize(data.item);
-  } catch (err) {
-    console.error("[base] item detail fetch error:", err);
-    return MOCK_PRODUCTS.find((p) => p.id === id) ?? null;
-  }
+  const products = await getAllProducts();
+  return (
+    products.find((p) => p.id === id || p.colors?.some((c) => c.itemId === id)) ?? null
+  );
 }
 
 /**
@@ -216,11 +273,9 @@ export async function getRelatedProducts(
   product: Product,
   limit = 4,
 ): Promise<Product[]> {
-  const others = (await getProducts()).filter((p) => p.id !== product.id);
+  // 色違いは同じ商品なので、まとめた単位で自分を除く
+  const others = (await getAllProducts()).filter((p) => p.id !== product.id);
   const sameCategory = others.filter((p) => p.category === product.category);
   const rest = others.filter((p) => p.category !== product.category);
   return [...sameCategory, ...rest].slice(0, limit);
 }
-
-/** 連携状態（デバッグ・表示用）。true ならモックを使用中。 */
-export const isUsingMockData = !hasCredentials;

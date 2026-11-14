@@ -121,9 +121,37 @@ npx tsc --noEmit   # 型チェック
 - `public/wall-bg.png` は旧ヒーロー背景。現在未使用だが**残置希望**（削除しない）。
 - ヒーロー背景の元画像はユーザー提供。差し替え時は `public/hero-bg*.png` を置換。
 
+## STORY → ABOUT（2026-11-14）
+- `/story` を `/about` に置き換え（`/story` は 308 で転送）。ナビ・トップのリンクも ABOUT に。一度 CONCEPT にしたが、BASE と名前をそろえるため ABOUT に変更（ユーザー指示）。
+- 中身はグラフィティ壁の写真の上に、BASE ショップの ABOUT と同じ文章（`lib/about-content.ts`）。
+- スマホ中心で組む: 本文 15px・行間 1.9（md 以上は 1.05rem・2.1）。改行は句の切れ目だけ（句の配列＋`<wbr>`＋keep-all）。信条「貧相でも、高潔。」と旧ストーリー本文は削除（ユーザー指示）。
+- 上のストーリー関連の記述（StoryHero / StoryBody / story-content / StarMark）は過去の経緯。ファイルはもう無い。
+
 ## BASEトークンの状況
-- 未取得 → **実商品4点＋モック35点＝計39点**で表示中（想定どおり）。取得手順は `.env.example` 参照。
+- **API v2 のパーソナルアクセストークン（PAT）を使用**（2026-11-12 発行、スコープ `items.read`）。Vercel の `BASE_API_TOKEN`（Production / Preview）に設定済み。
+- **有効期限：2027-02-10（発行から90日・最大）。期限前に BASE Developers → API v2 → PAT で再発行し、Vercel の値を差し替えること。** 切れると BASE の商品が出なくなり、サイト内の実商品4点（`lib/local-products.ts`）に戻る。
+- BASE で**販売開始前**（`sales_status` = `item_waiting_for_sale`）か非公開の商品は **COMING SOON**（購入ボタン停止）で出す。販売が始まれば最大1時間で通常表示に切り替わる。販売終了後は SOLD OUT。BASE は色ごとに別商品（例: `AscenDed336 – SYMBOL TEE BLACK`）なので、末尾の色名で1商品にまとめ、詳細ページの色ボタンで切り替える。一覧では色ごとに1枚ずつ並べる。
+- 商品説明は BASE に登録された文を使う（ユーザー指示）。
 
 ## スマホ（claude.ai/code）で続ける場合
 - GitHubリポジトリは同期済み。claude.ai/code をブラウザで開き本リポジトリを選択 → このPROGRESS.mdから再開。
 - クラウド側の変更はリポジトリにコミットされる。Macに戻ったら `git pull`。
+
+## トップのマーキーをロゴに（2026-11-14）
+- `Marquee.tsx` の流れる文字（BRITISH PUNK — …）をロゴマーク（ユリの星）だけの繰り返しに差し替え。ブランド名の文字は入れない（ユーザー指示）。
+- 画像は `public/logo-star.png`（394×388）。`logo-mark.png` から星の部分だけを sharp で切り出し、余白を trim したもの。
+
+## トップのカテゴリーと LOOKBOOK（2026-11-14）
+- `CategoryBanner.tsx`: TOPS だけ写真付きのリンク（`/products/graffiti-tee/black-front.jpg`）。BOTTOMS / OUTERWEAR / VINTAGE / ACCESSORIES は「COMING SOON」の札のみでリンクなし。商品が増えたら `image` を足せばリンクに切り替わる。
+- トップの LOOKBOOK 誘導の説明文（荒削りと品格が交差する…）を削除し、見出し LOOKBOOK だけに（ユーザー指示）。
+
+## トップの整理と BASE 連携の取り込み（2026-11-14）
+- トップから BEST SELLERS を削除（発売前で売れた実績がないため。ユーザー指示）。ヒーローの英語のキャッチコピー（REFINED CHAOS — ELEVATED REBELLION）も削除。
+- `base-api-v2` を `about-page` にマージ。見本商品（mock-products）は削除済みで、商品は BASE に登録された8点だけ。BASE から取れないときだけ `local-products.ts`（同じ実商品4点）を出す。
+- フッターのロゴ下の英語（British punk fashion. Refined chaos, elevated rebellion.）を削除。カテゴリーの COMING SOON は黒地＋細い枠＋赤字に（ユーザー指示）。
+- `app/layout.tsx` の meta description（検索結果・SNS共有の説明文）も ABOUT の1文目の日本語に変更。英語のキャッチコピーはサイトから無くなった。
+
+## SIZE GUIDE を BASE の【SIZE CHART】に合わせる（2026-11-14）
+- `lib/size-charts.ts` の `parseSizeChart()` が BASE の商品説明の【SIZE CHART】欄（`S / 着丈66cm・肩幅42cm・身幅49cm・袖丈19cm`、※行は注記）を読み、SIZE GUIDE の表・図・注記にする。BASE で直せば最大1時間で反映。
+- 項目は BASE と同じ 着丈・肩幅・身幅・袖丈（旧表の袖口・袖幅・バスト(×2)は廃止）。図も書かれた項目の寸法線だけ引く。
+- 読めないとき・予備の商品は `PRESETS`（BASE と同じ値）。
