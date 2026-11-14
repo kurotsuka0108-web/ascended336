@@ -12,7 +12,7 @@ export type ProductCategory =
   | "ACCESSORIES";
 
 export interface ProductVariation {
-  /** BASE の variation_id（モックでは連番） */
+  /** バリエーションID（サイズ名の小文字。例: "m"） */
   id: string;
   /** サイズなどのラベル（例: "S", "M", "FREE"） */
   label: string;
@@ -30,13 +30,25 @@ export interface ProductColor {
   swatch: string;
   /** この色の画像（先頭がメイン） */
   images: string[];
+  /** BASE で色ごとに別商品のとき、その色の商品ID */
+  itemId?: string;
+  /** この色のサイズと在庫。無ければ商品の variations を使う */
+  variations?: ProductVariation[];
+  /** この色の BASE 商品ページ。無ければ商品の url を使う */
+  url?: string;
+  /** この色の在庫の有無 */
+  inStock?: boolean;
+  /** この色の商品説明。無ければ商品の description を使う */
+  description?: string;
+  /** この色が BASE で非公開（発売前） */
+  comingSoon?: boolean;
 }
 
 /** サイズ表の種類。lib/size-charts.ts のキー */
 export type SizeChartKey = "tee" | "long-tee";
 
 export interface Product {
-  /** BASE の item_id を文字列化したもの */
+  /** BASE の商品IDを文字列化したもの（サイト内の実商品は "graffiti-tee" などのスラッグ） */
   id: string;
   /** 商品名 */
   name: string;
@@ -56,4 +68,10 @@ export interface Product {
   colors?: ProductColor[];
   /** サイズ表。あれば詳細ページに SIZE GUIDE を出す */
   sizeChart?: SizeChartKey;
+  /** BASE の商品ページ。無ければ購入ボタンはショップのトップへ */
+  url?: string;
+  /** 一覧のカードのリンク先。無ければ /products/<id> */
+  href?: string;
+  /** BASE で非公開の商品。COMING SOON と出し、購入ボタンを止める */
+  comingSoon?: boolean;
 }

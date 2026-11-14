@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ProductGallery from "@/components/product/ProductGallery";
 import SizeGuide from "@/components/product/SizeGuide";
+import { SHOP_URL } from "@/lib/shop";
 import type { Product } from "@/types/product";
 
 interface ProductDetailProps {
@@ -22,12 +23,21 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
   );
   const color = colors.find((c) => c.id === colorId);
   const images = color?.images ?? product.images;
+  // BASE で色ごとに別商品のときは、サイズの在庫と購入リンクも色ごとに持つ
+  const variations = color?.variations ?? product.variations;
+  const inStock = color?.inStock ?? product.inStock;
+  const buyUrl = color?.url ?? product.url ?? SHOP_URL;
+  const description = color?.description ?? product.description;
+  const comingSoon = color?.comingSoon ?? product.comingSoon;
   // サイズは未選択から始める（勝手に M などを選んでおくと、選び忘れに気づけない）
   const [sizeId, setSizeId] = useState<string>();
-  const size = product.variations.find((v) => v.id === sizeId);
+  const size = variations.find((v) => v.id === sizeId);
 
   function selectColor(id: string) {
     setColorId(id);
+    // 色ごとにバリエーションIDが違うので、サイズはラベルで選び直す
+    const next = colors.find((c) => c.id === id)?.variations;
+    if (next && size) setSizeId(next.find((v) => v.label === size.label)?.id);
     // 共有・リロードしても同じ色で開けるよう URL に残す（履歴は積まない）
     const url = new URL(window.location.href);
     url.searchParams.set("color", id);
@@ -59,9 +69,9 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
           </p>
         </div>
 
-        {product.description && (
+        {description && (
           <p className="font-body text-sm text-brand-gray-light leading-relaxed whitespace-pre-line">
-            {product.description}
+            {description}
           </p>
         )}
 
@@ -101,7 +111,7 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
         )}
 
         {/* Size selector */}
-        {product.variations.length > 0 && (
+        {variations.length > 0 && (
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="font-heading text-[11px] tracking-[0.3em] text-brand-gray-light">
@@ -111,7 +121,7 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
               {product.sizeChart && <SizeGuide chart={product.sizeChart} />}
             </div>
             <div role="radiogroup" aria-label="サイズ" className="flex flex-wrap gap-3">
-              {product.variations.map((v) => {
+              {variations.map((v) => {
                 const soldOut = v.stock <= 0;
                 const selected = v.id === sizeId;
                 return (
@@ -142,9 +152,16 @@ export default function ProductDetail({ product, initialColorId }: ProductDetail
         )}
 
         {/* BASE purchase button */}
-        {product.inStock ? (
+        {comingSoon ? (
+          <span
+            className="font-heading text-sm tracking-[0.35em] px-8 py-4 text-center
+                       border-2 border-brand-red text-brand-red cursor-not-allowed"
+          >
+            COMING SOON
+          </span>
+        ) : inStock ? (
           <a
-            href="https://base.shop"
+            href={buyUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="font-heading text-sm tracking-[0.35em] px-8 py-4 text-center

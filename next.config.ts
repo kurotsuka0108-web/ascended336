@@ -8,17 +8,13 @@ const nextConfig: NextConfig = {
   // モジュール解決の失敗・出力ファイルトレースのズレを招く。固定して影響を断つ。
   turbopack: { root: path.resolve(__dirname) },
   images: {
-    // BASE の商品画像CDNを許可（本番連携時に使用）
+    // BASE の商品画像CDNを許可。API v2 の画像URLのホストが増えたらここに足す
     remotePatterns: [
       { protocol: "https", hostname: "baseec-img-mng.akamaized.net" },
       { protocol: "https", hostname: "baseec-images.akamaized.net" },
-      { protocol: "https", hostname: "images.thebase.in" },
+      { protocol: "https", hostname: "**.thebase.in" },
+      { protocol: "https", hostname: "**.thebase.com" },
     ],
-    // /public/sample のデモ用SVGを next/image で扱うための設定。
-    // 配信は自前の静的ファイルのみ。スクリプト実行を防ぐため CSP / attachment を付与。
-    dangerouslyAllowSVG: true,
-    contentDispositionType: "attachment",
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   // 実商品は当初「デザイン×色」で1商品だったが、色を詳細ページで選ぶ形にまとめた。
   // 共有済みの旧URLが切れないよう、色を選んだ状態の新URLへ転送する。

@@ -4,7 +4,7 @@ import type { Product } from "@/types/product";
 
 type ProductCardProps = Pick<
   Product,
-  "id" | "name" | "price" | "category" | "images" | "inStock"
+  "id" | "name" | "price" | "category" | "images" | "inStock" | "href" | "comingSoon"
 >;
 
 export default function ProductCard({
@@ -14,12 +14,14 @@ export default function ProductCard({
   category,
   images,
   inStock,
+  href,
+  comingSoon,
 }: ProductCardProps) {
   const mainImage = images[0];
 
   return (
     <Link
-      href={`/products/${id}`}
+      href={href ?? `/products/${id}`}
       className="group flex flex-col gap-3
                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red"
       aria-label={`${name} - ¥${price.toLocaleString()}`}
@@ -53,8 +55,16 @@ export default function ProductCard({
           </div>
         )}
 
+        {/* Coming soon badge（写真は暗くせず、発売前の告知として見せる） */}
+        {comingSoon && (
+          <span className="absolute top-2 left-2 font-heading text-[10px] tracking-[0.3em]
+                           bg-brand-red text-brand-cream px-2 py-1">
+            COMING SOON
+          </span>
+        )}
+
         {/* Sold out overlay */}
-        {!inStock && (
+        {!inStock && !comingSoon && (
           <div className="absolute inset-0 flex items-center justify-center bg-brand-black/60">
             <span className="font-heading text-xs tracking-[0.3em] text-brand-white border border-brand-white px-3 py-1">
               SOLD OUT

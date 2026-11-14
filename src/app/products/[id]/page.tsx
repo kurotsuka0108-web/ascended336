@@ -72,7 +72,12 @@ export default async function ProductDetailPage({
 
         <ProductDetail
           product={product}
-          initialColorId={typeof color === "string" ? color : undefined}
+          initialColorId={
+            // ?color= が無ければ、URL の商品IDに当たる色（BASE の色別商品）で開く
+            typeof color === "string"
+              ? color
+              : product.colors?.find((c) => c.itemId === id)?.id
+          }
         />
       </div>
 
