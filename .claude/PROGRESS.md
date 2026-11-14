@@ -135,5 +135,5 @@ npx tsc --noEmit   # 型チェック
 - クラウド側の変更はリポジトリにコミットされる。Macに戻ったら `git pull`。
 
 ## トップのマーキーをロゴに（2026-11-14）
-- `Marquee.tsx` の流れる文字（BRITISH PUNK — …）をロゴ（星＋AscenDed336）の繰り返しに差し替え。
-- ロゴは周りの透明な余白を切り落とした `public/logo-mark-trim.png`（850×561、`logo-mark.png` から sharp の trim で作成）。
+- `Marquee.tsx` の流れる文字（BRITISH PUNK — …）をロゴマーク（ユリの星）だけの繰り返しに差し替え。ブランド名の文字は入れない（ユーザー指示）。
+- 画像は `public/logo-star.png`（394×388）。`logo-mark.png` から星の部分だけを sharp で切り出し、余白を trim したもの。
