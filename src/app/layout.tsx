@@ -34,15 +34,19 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 
+// 検索結果・SNS 共有に出る説明文。ABOUT ページの1文目と同じ
+const DESCRIPTION =
+  "UKパンクの反骨精神と、エモカルチャーの感情表現を融合したオルタナティブファッションブランド。";
+
 export const metadata: Metadata = {
   title: {
     default: "ASCENDED336",
     template: "%s | ASCENDED336",
   },
-  description: "British punk fashion brand. Refined chaos, elevated rebellion.",
+  description: DESCRIPTION,
   openGraph: {
     title: "ASCENDED336",
-    description: "British punk fashion brand. Refined chaos, elevated rebellion.",
+    description: DESCRIPTION,
     type: "website",
     locale: "ja_JP",
   },

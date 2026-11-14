@@ -44,8 +44,7 @@ export interface ProductColor {
   comingSoon?: boolean;
 }
 
-/** サイズ表の種類。lib/size-charts.ts のキー */
-export type SizeChartKey = "tee" | "long-tee";
+import type { SizeChart } from "@/lib/size-charts";
 
 export interface Product {
   /** BASE の商品IDを文字列化したもの（サイト内の実商品は "graffiti-tee" などのスラッグ） */
@@ -67,7 +66,7 @@ export interface Product {
   /** カラー展開。あれば images は先頭の色の画像と同じ */
   colors?: ProductColor[];
   /** サイズ表。あれば詳細ページに SIZE GUIDE を出す */
-  sizeChart?: SizeChartKey;
+  sizeChart?: SizeChart;
   /** BASE の商品ページ。無ければ購入ボタンはショップのトップへ */
   url?: string;
   /** 一覧のカードのリンク先。無ければ /products/<id> */

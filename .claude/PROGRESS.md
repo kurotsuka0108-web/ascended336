@@ -149,4 +149,9 @@ npx tsc --noEmit   # 型チェック
 - トップから BEST SELLERS を削除（発売前で売れた実績がないため。ユーザー指示）。ヒーローの英語のキャッチコピー（REFINED CHAOS — ELEVATED REBELLION）も削除。
 - `base-api-v2` を `about-page` にマージ。見本商品（mock-products）は削除済みで、商品は BASE に登録された8点だけ。BASE から取れないときだけ `local-products.ts`（同じ実商品4点）を出す。
 - フッターのロゴ下の英語（British punk fashion. Refined chaos, elevated rebellion.）を削除。カテゴリーの COMING SOON は黒地＋細い枠＋赤字に（ユーザー指示）。
-- 残っている英語のキャッチコピーは `app/layout.tsx` の meta description（検索結果・SNS共有の説明文）だけ。画面には出ない。
+- `app/layout.tsx` の meta description（検索結果・SNS共有の説明文）も ABOUT の1文目の日本語に変更。英語のキャッチコピーはサイトから無くなった。
+
+## SIZE GUIDE を BASE の【SIZE CHART】に合わせる（2026-11-14）
+- `lib/size-charts.ts` の `parseSizeChart()` が BASE の商品説明の【SIZE CHART】欄（`S / 着丈66cm・肩幅42cm・身幅49cm・袖丈19cm`、※行は注記）を読み、SIZE GUIDE の表・図・注記にする。BASE で直せば最大1時間で反映。
+- 項目は BASE と同じ 着丈・肩幅・身幅・袖丈（旧表の袖口・袖幅・バスト(×2)は廃止）。図も書かれた項目の寸法線だけ引く。
+- 読めないとき・予備の商品は `PRESETS`（BASE と同じ値）。

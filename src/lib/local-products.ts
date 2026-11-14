@@ -1,4 +1,5 @@
 import type { Product, ProductColor, ProductVariation } from "@/types/product";
+import { PRESETS } from "./size-charts";
 
 /**
  * サイト内に持っている実商品データ（4点）。
@@ -45,7 +46,7 @@ const SEEDS: (Omit<Product, "images" | "category" | "inStock" | "variations"> & 
     price: PROVISIONAL_TEE_PRICE,
     description: "",
     colors: whiteAndBlack("graffiti-tee", ["front", "model"]),
-    sizeChart: "tee",
+    sizeChart: PRESETS.tee,
   },
   {
     id: "emblem-tee",
@@ -53,7 +54,7 @@ const SEEDS: (Omit<Product, "images" | "category" | "inStock" | "variations"> & 
     price: PROVISIONAL_TEE_PRICE,
     description: "",
     colors: whiteAndBlack("emblem-tee", ["front", "model"]),
-    sizeChart: "tee",
+    sizeChart: PRESETS.tee,
   },
   {
     id: "graffiti-long-tee",
@@ -61,7 +62,7 @@ const SEEDS: (Omit<Product, "images" | "category" | "inStock" | "variations"> & 
     price: PROVISIONAL_LONG_TEE_PRICE,
     description: "",
     colors: whiteAndBlack("graffiti-long-tee", ["front"]),
-    sizeChart: "long-tee",
+    sizeChart: PRESETS["long-tee"],
   },
   {
     id: "emblem-long-tee",
@@ -69,7 +70,7 @@ const SEEDS: (Omit<Product, "images" | "category" | "inStock" | "variations"> & 
     price: PROVISIONAL_LONG_TEE_PRICE,
     description: "",
     colors: whiteAndBlack("emblem-long-tee", ["front"]),
-    sizeChart: "long-tee",
+    sizeChart: PRESETS["long-tee"],
   },
 ];
 

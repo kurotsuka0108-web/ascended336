@@ -4,8 +4,8 @@ import type {
   ProductCategory,
   ProductColor,
   ProductVariation,
-  SizeChartKey,
 } from "@/types/product";
+import { PRESETS, parseSizeChart, type SizeChart, type SizeChartShape } from "./size-charts";
 import { LOCAL_PRODUCTS } from "./local-products";
 import { shopItemUrl } from "./shop";
 
@@ -44,12 +44,23 @@ function inferCategory(title: string): ProductCategory {
   return "TOPS";
 }
 
-/** 商品名からサイズ表を選ぶ。Tシャツ以外は出さない */
-function inferSizeChart(title: string): SizeChartKey | undefined {
+/** 商品名から形（図の半袖・長袖）を決める。Tシャツ以外は undefined */
+function inferShape(title: string): SizeChartShape | undefined {
   const t = title.toLowerCase();
   if (/(long|ロング|長袖)/.test(t)) return "long-tee";
   if (/(tee|t-shirt|tシャツ|半袖)/.test(t)) return "tee";
   return undefined;
+}
+
+/**
+ * サイズ表を作る。商品説明の【SIZE CHART】を優先し、読めなければ形ごとの予備（PRESETS）。
+ * どちらも無い（Tシャツ以外で欄も無い）ときは SIZE GUIDE を出さない。
+ */
+function buildSizeChart(name: string, detail: string): SizeChart | undefined {
+  const shape = inferShape(name);
+  const parsed = parseSizeChart(detail);
+  if (parsed) return { title: shape ? PRESETS[shape].title : name, shape, ...parsed };
+  return shape && PRESETS[shape];
 }
 
 // ── 色 ──
@@ -123,7 +134,7 @@ function normalize(item: BaseItem): Product & { color?: ProductColor } {
     category: inferCategory(name),
     inStock,
     variations,
-    sizeChart: inferSizeChart(name),
+    sizeChart: buildSizeChart(name, item.detail ?? ""),
     url,
     comingSoon,
     color: color && {
